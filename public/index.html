@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MoreFire 🔥</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+  html, body {
+    height: 100%;
+    font-family: 'Comic Sans MS', 'Trebuchet MS', system-ui, sans-serif;
+    overflow: hidden;
+    background: #0b1020;
+    color: #fff;
+  }
+  #app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ---------- START SCREEN ---------- */
+  #start {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 30%, #ff8c1a 0%, #c0392b 40%, #2c1100 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 30px; padding: 20px; text-align: center;
+    animation: flicker 3s infinite alternate;
+  }
+  @keyframes flicker {
+    0%   { filter: brightness(1)   hue-rotate(0deg); }
+    100% { filter: brightness(1.1) hue-rotate(-8deg); }
+  }
+  #start h1 {
+    font-size: clamp(50px, 10vw, 110px);
+    text-shadow: 0 0 20px #ffd28a, 0 0 40px #ff5500, 4px 4px 0 #6b1500;
+    letter-spacing: 2px;
+  }
+  #start p { font-size: clamp(16px, 2.4vw, 22px); opacity: 0.95; max-width: 600px; }
+  #scene-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 18px;
+    width: min(700px, 92vw);
+  }
+  .scene-btn {
+    cursor: pointer;
+    padding: 18px 14px;
+    border-radius: 18px;
+    border: 4px solid #fff;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #000;
+    transition: transform 0.15s, background 0.15s;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: inherit;
+  }
+  .scene-btn:hover { transform: scale(1.06) rotate(-1deg); background: rgba(255,140,40,0.55); }
+  .scene-btn .emoji { font-size: 42px; }
+
+  /* ---------- GAME SCREEN ---------- */
+  #game { position: absolute; inset: 0; display: none; }
+  #scene-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* HUD */
+  #hud {
+    position: absolute; top: 14px; left: 14px; right: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    pointer-events: none; z-index: 10;
+  }
+  #counter {
+    background: rgba(0,0,0,0.55); padding: 8px 14px; border-radius: 999px;
+    font-size: 18px; font-weight: bold; border: 2px solid #ffb84d;
+    text-shadow: 1px 1px 0 #000;
+  }
+  #restart-btn {
+    pointer-events: auto;
+    cursor: pointer; background: #fff; color: #c0392b;
+    border: none; padding: 8px 14px; border-radius: 999px;
+    font-weight: bold; font-family: inherit; font-size: 14px;
+  }
+  #restart-btn:hover { background: #ffe0b3; }
+
+  /* Fire click target */
+  #fire-wrap {
+    position: absolute;
+    left: 50%; top: 60%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: transform 0.12s ease-out;
+    z-index: 5;
+  }
+  #fire-wrap:active { transform: translate(-50%, -50%) scale(0.92); }
+  .fire {
+    position: relative;
+    width: 80px; height: 100px;
+    transition: width 0.25s, height 0.25s;
+  }
+  .flame {
+    position: absolute;
+    bottom: 0; left: 50%;
+    width: 70%; height: 90%;
+    background: radial-gradient(ellipse at 50% 100%, #fff8a8 0%, #ffd23f 25%, #ff7e1a 55%, #c0392b 80%, transparent 100%);
+    border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
+    transform: translateX(-50%);
+    animation: dance 0.5s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 20px #ff7a00);
+  }
+  .flame.inner {
+    width: 45%; height: 65%;
+    background: radial-gradient(ellipse at 50% 100%, #ffffff 0%, #fff5b0 30%, #ffae33 70%, transparent 100%);
+    animation-duration: 0.35s;
+    filter: none;
+  }
+  @keyframes dance {
+    0%   { transform: translateX(-50%) scaleY(1)   skewX(-3deg); }
+    50%  { transform: translateX(-50%) scaleY(1.08) skewX(2deg); }
+    100% { transform: translateX(-50%) scaleY(0.95) skewX(-2deg); }
+  }
+
+  /* Smoke + sparks layer */
+  #fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 8; }
+  .smoke, .spark, .pop {
+    position: absolute; pointer-events: none;
+    border-radius: 50%;
+  }
+  .smoke {
+    background: radial-gradient(circle, rgba(80,80,80,0.7) 0%, rgba(40,40,40,0) 70%);
+    animation: rise 3s ease-out forwards;
+  }
+  @keyframes rise {
+    0%   { transform: translate(-50%, 0) scale(0.4); opacity: 0.9; }
+    100% { transform: translate(calc(-50% + var(--dx, 0px)), -120vh) scale(2.5); opacity: 0; }
+  }
+  .spark {
+    width: 6px; height: 6px;
+    background: radial-gradient(circle, #fff8a8 0%, #ff7e1a 70%, transparent 100%);
+    animation: fly 0.9s ease-out forwards;
+  }
+  @keyframes fly {
+    0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--sx,0px)), calc(-50% + var(--sy,-100px))) scale(0.2); opacity: 0; }
+  }
+  .pop {
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #c0392b, 0 0 12px #ffae33;
+    font-size: 26px;
+    transform: translate(-50%, -50%);
+    animation: pop 0.7s ease-out forwards;
+    background: none; border-radius: 0;
+  }
+  @keyframes pop {
+    0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+    100% { transform: translate(-50%, -180%) scale(1.6); opacity: 0; }
+  }
+
+  /* Screen flash + shake helpers */
+  #flash {
+    position: absolute; inset: 0; background: #fff;
+    opacity: 0; pointer-events: none; z-index: 20;
+    transition: opacity 0.1s;
+  }
+  .shake { animation: shake 0.25s; }
+  @keyframes shake {
+    0%, 100% { transform: translate(0,0); }
+    20% { transform: translate(-6px, 4px); }
+    40% { transform: translate(7px, -3px); }
+    60% { transform: translate(-5px, -5px); }
+    80% { transform: translate(4px, 6px); }
+  }
+
+  /* GAME OVER */
+  #gameover {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(circle, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
+    color: #fff; z-index: 30; text-align: center; padding: 20px; gap: 22px;
+  }
+  #gameover h2 {
+    font-size: clamp(48px, 9vw, 100px);
+    text-shadow: 0 0 30px #ff5500, 4px 4px 0 #6b1500;
+    animation: flicker 2s infinite alternate;
+  }
+  #gameover p { font-size: clamp(16px, 2.2vw, 22px); max-width: 500px; opacity: 0.9; }
+  #gameover button {
+    cursor: pointer; padding: 14px 28px; border-radius: 999px;
+    border: 4px solid #fff; background: #ff5500; color: #fff;
+    font-size: 22px; font-weight: bold; font-family: inherit;
+    text-shadow: 1px 1px 0 #6b1500;
+    transition: transform 0.15s;
+  }
+  #gameover button:hover { transform: scale(1.08); }
+
+  /* Scene SVG element styles for burning */
+  .burnable { transition: filter 1s, opacity 1s; }
+  .charred  { filter: brightness(0.15) saturate(0.2); }
+  .gone     { opacity: 0; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- START SCREEN -->
+  <div id="start">
+    <h1>🔥 MoreFire 🔥</h1>
+    <p>Pick a scene. Click the fire. Watch it grow. <br>Cause maximum chaos in 20 clicks!</p>
+    <div id="scene-picker">
+      <button class="scene-btn" data-scene="house">    <span class="emoji">🏠</span> House </button>
+      <button class="scene-btn" data-scene="hospital"> <span class="emoji">🏥</span> Hospital </button>
+      <button class="scene-btn" data-scene="park">     <span class="emoji">🌳</span> Park </button>
+      <button class="scene-btn" data-scene="random">   <span class="emoji">🎲</span> Random </button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game">
+    <svg id="scene-svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice"></svg>
+    <div id="fx"></div>
+    <div id="fire-wrap" title="Click me!">
+      <div class="fire" id="fire">
+        <div class="flame outer"></div>
+        <div class="flame inner"></div>
+      </div>
+    </div>
+    <div id="hud">
+      <div id="counter">Clicks: 0 / 20</div>
+      <button id="restart-btn">↺ Restart</button>
+    </div>
+    <div id="flash"></div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="gameover">
+    <h2>TOTAL DESTRUCTION!</h2>
+    <p id="end-msg">You burned it all down. Hope you feel better. 😈</p>
+    <button id="play-again">Play Again</button>
+  </div>
+
+</div>
+
+<script>
+/* ===========================================================
+   MoreFire - simple click-to-burn game
+   =========================================================== */
+
+const MAX_CLICKS = 20;
+
+const startEl    = document.getElementById('start');
+const gameEl     = document.getElementById('game');
+const svgEl      = document.getElementById('scene-svg');
+const fireWrap   = document.getElementById('fire-wrap');
+const fireEl     = document.getElementById('fire');
+const counterEl  = document.getElementById('counter');
+const fxEl       = document.getElementById('fx');
+const flashEl    = document.getElementById('flash');
+const gameoverEl = document.getElementById('gameover');
+const endMsgEl   = document.getElementById('end-msg');
+
+let clicks = 0;
+let currentScene = null;
+let burnableEls = []; // scene parts in destruction order
+
+/* ---------- SCENES (SVG strings) ---------- */
+const SCENES = {
+
+  house: () => `
+    <!-- sky -->
+    <rect class="bg" width="1000" height="450" fill="url(#skyGrad)"/>
+    <defs>
+      <linearGradient id="skyGrad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stop-color="#7ec8ff"/>
+        <stop offset="100%" stop-color="#cfe9ff"/>
+      </linearGradient>
+    </defs>
+    <!-- sun -->
+    <circle class="burnable" data-burn="9" cx="850" cy="110" r="55" fill="#ffd86b"/>
+    <!-- ground -->
+    <rect y="450" width="1000" height="150" fill="#7cc36a"/>
+    <rect y="540" width="1000" height="60"  fill="#5fa852"/>
+    <!-- tree -->
+    <g class="burnable" data-burn="3">
+      <rect x="120" y="380" width="30" height="100" fill="#5b3a1e"/>
+      <circle cx="135" cy="370" r="60" fill="#3da955"/>
+      <circle cx="100" cy="390" r="45" fill="#3da955"/>
+      <circle cx="170" cy="395" r="50" fill="#3da955"/>
+    </g>
+    <!-- house body -->
+    <g class="burnable" data-burn="6">
+      <rect x="380" y="320" width="320" height="200" fill="#f7e1b5" stroke="#7a4a1d" stroke-width="4"/>
+    </g>
+    <!-- roof -->
+    <g class="burnable" data-burn="5">
+      <polygon points="360,320 540,200 720,320" fill="#b3471a" stroke="#5b1f08" stroke-width="4"/>
+    </g>
+    <!-- door -->
+    <g class="burnable" data-burn="7">
+      <rect x="500" y="400" width="80" height="120" fill="#7a4a1d" stroke="#3d2210" stroke-width="3"/>
+      <circle cx="565" cy="465" r="4" fill="#ffd86b"/>
+    </g>
+    <!-- windows -->
+    <g class="burnable" data-burn="8">
+      <rect x="410" y="350" width="60" height="60" fill="#9bd3ff" stroke="#3d2210" stroke-width="3"/>
+      <line x1="440" y1="350" x2="440" y2="410" stroke="#3d2210" stroke-width="2"/>
+      <line x1="410" y1="380" x2="470" y2="380" stroke="#3d2210" stroke-width="2"/>
+
+      <rect x="610" y="350" width="60" height="60" fill="#9bd3ff" stroke="#3d2210" stroke-width="3"/>
+      <line x1="640" y1="350" x2="640" y2="410" stroke="#3d2210" stroke-width="2"/>
+      <line x1="610" y1="380" x2="670" y2="380" stroke="#3d2210" stroke-width="2"/>
+    </g>
+    <!-- chimney -->
+    <g class="burnable" data-burn="4">
+      <rect x="630" y="220" width="40" height="70" fill="#8a3414" stroke="#3d2210" stroke-width="3"/>
+    </g>
+    <!-- bushes -->
+    <g class="burnable" data-burn="2">
+      <circle cx="780" cy="500" r="35" fill="#3da955"/>
+      <circle cx="820" cy="510" r="30" fill="#3da955"/>
+    </g>
+    <!-- ground itself burns last -->
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
+  `,
+
+  hospital: () => `
+    <rect class="bg" width="1000" height="450" fill="#cfe9ff"/>
+    <rect y="450" width="1000" height="150" fill="#cccccc"/>
+    <rect y="540" width="1000" height="60"  fill="#888"/>
+    <!-- sun -->
+    <circle class="burnable" data-burn="9" cx="120" cy="100" r="45" fill="#ffd86b"/>
+    <!-- tree -->
+    <g class="burnable" data-burn="3">
+      <rect x="880" y="380" width="24" height="100" fill="#5b3a1e"/>
+      <circle cx="892" cy="370" r="50" fill="#3da955"/>
+    </g>
+    <!-- main building -->
+    <g class="burnable" data-burn="6">
+      <rect x="250" y="200" width="500" height="320" fill="#ffffff" stroke="#666" stroke-width="4"/>
+    </g>
+    <!-- red cross -->
+    <g class="burnable" data-burn="5">
+      <rect x="470" y="225" width="60" height="120" fill="#e63946"/>
+      <rect x="440" y="255" width="120" height="60" fill="#e63946"/>
+    </g>
+    <!-- entrance -->
+    <g class="burnable" data-burn="7">
+      <rect x="460" y="430" width="80" height="90" fill="#5a8fbf"/>
+      <rect x="460" y="430" width="80" height="14" fill="#34495e"/>
+    </g>
+    <!-- windows -->
+    <g class="burnable" data-burn="8">
+      <rect x="290" y="380" width="50" height="50" fill="#9bd3ff" stroke="#444" stroke-width="2"/>
+      <rect x="370" y="380" width="50" height="50" fill="#9bd3ff" stroke="#444" stroke-width="2"/>
+      <rect x="580" y="380" width="50" height="50" fill="#9bd3ff" stroke="#444" stroke-width="2"/>
+      <rect x="660" y="380" width="50" height="50" fill="#9bd3ff" stroke="#444" stroke-width="2"/>
+
+      <rect x="290" y="290" width="50" height="50" fill="#9bd3ff" stroke="#444" stroke-width="2"/>
+      <rect x="370" y="290" width="50" height="50" fill="#9bd3ff" stroke="#444" stroke-width="2"/>
+      <rect x="580" y="290" width="50" height="50" fill="#9bd3ff" stroke="#444" stroke-width="2"/>
+      <rect x="660" y="290" width="50" height="50" fill="#9bd3ff" stroke="#444" stroke-width="2"/>
+    </g>
+    <!-- ambulance -->
+    <g class="burnable" data-burn="2">
+      <rect x="60" y="450" width="160" height="70" fill="#ffffff" stroke="#222" stroke-width="3"/>
+      <rect x="170" y="470" width="50" height="50" fill="#9bd3ff" stroke="#222" stroke-width="2"/>
+      <rect x="100" y="465" width="40" height="10" fill="#e63946"/>
+      <rect x="115" y="455" width="10" height="30" fill="#e63946"/>
+      <circle cx="100" cy="525" r="14" fill="#222"/>
+      <circle cx="190" cy="525" r="14" fill="#222"/>
+    </g>
+    <!-- helipad H -->
+    <g class="burnable" data-burn="4">
+      <circle cx="500" cy="180" r="22" fill="none" stroke="#e63946" stroke-width="4"/>
+      <text x="500" y="190" text-anchor="middle" font-size="28" font-weight="bold" fill="#e63946" font-family="sans-serif">H</text>
+    </g>
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
+  `,
+
+  park: () => `
+    <rect class="bg" width="1000" height="450" fill="url(#sky2)"/>
+    <defs>
+      <linearGradient id="sky2" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stop-color="#9fdcff"/>
+        <stop offset="100%" stop-color="#dff4ff"/>
+      </linearGradient>
+    </defs>
+    <rect y="450" width="1000" height="150" fill="#7cc36a"/>
+    <rect y="540" width="1000" height="60"  fill="#5fa852"/>
+    <!-- sun -->
+    <circle class="burnable" data-burn="9" cx="180" cy="110" r="50" fill="#ffd86b"/>
+    <!-- clouds -->
+    <g class="burnable" data-burn="9">
+      <ellipse cx="700" cy="120" rx="60" ry="22" fill="#fff"/>
+      <ellipse cx="740" cy="105" rx="40" ry="18" fill="#fff"/>
+      <ellipse cx="770" cy="130" rx="50" ry="20" fill="#fff"/>
+    </g>
+    <!-- tree left -->
+    <g class="burnable" data-burn="2">
+      <rect x="110" y="360" width="30" height="120" fill="#5b3a1e"/>
+      <circle cx="125" cy="350" r="65" fill="#3da955"/>
+      <circle cx="85"  cy="370" r="50" fill="#3da955"/>
+      <circle cx="170" cy="375" r="55" fill="#3da955"/>
+    </g>
+    <!-- tree right -->
+    <g class="burnable" data-burn="3">
+      <rect x="850" y="360" width="30" height="120" fill="#5b3a1e"/>
+      <circle cx="865" cy="350" r="65" fill="#3da955"/>
+      <circle cx="825" cy="375" r="50" fill="#3da955"/>
+      <circle cx="905" cy="375" r="55" fill="#3da955"/>
+    </g>
+    <!-- bench -->
+    <g class="burnable" data-burn="6">
+      <rect x="380" y="450" width="240" height="20" fill="#7a4a1d"/>
+      <rect x="380" y="430" width="240" height="14" fill="#7a4a1d"/>
+      <rect x="395" y="470" width="14" height="40" fill="#7a4a1d"/>
+      <rect x="591" y="470" width="14" height="40" fill="#7a4a1d"/>
+    </g>
+    <!-- swing set -->
+    <g class="burnable" data-burn="5">
+      <line x1="700" y1="280" x2="660" y2="470" stroke="#444" stroke-width="6"/>
+      <line x1="900" y1="280" x2="940" y2="470" stroke="#444" stroke-width="6"/>
+      <line x1="660" y1="280" x2="940" y2="280" stroke="#444" stroke-width="6"/>
+      <line x1="760" y1="280" x2="760" y2="400" stroke="#222" stroke-width="3"/>
+      <line x1="820" y1="280" x2="820" y2="400" stroke="#222" stroke-width="3"/>
+      <rect x="745" y="395" width="90" height="14" fill="#b3471a"/>
+    </g>
+    <!-- flowers -->
+    <g class="burnable" data-burn="4">
+      <circle cx="280" cy="500" r="12" fill="#ff6b9c"/>
+      <circle cx="320" cy="510" r="12" fill="#ffd86b"/>
+      <circle cx="360" cy="500" r="12" fill="#ff6b9c"/>
+      <circle cx="220" cy="510" r="12" fill="#9b6bff"/>
+    </g>
+    <!-- pond -->
+    <g class="burnable" data-burn="7">
+      <ellipse cx="500" cy="540" rx="160" ry="30" fill="#5ab8e8"/>
+    </g>
+    <!-- duck -->
+    <g class="burnable" data-burn="8">
+      <ellipse cx="500" cy="525" rx="22" ry="12" fill="#fff"/>
+      <circle cx="520" cy="515" r="9" fill="#fff"/>
+      <polygon points="528,515 540,517 528,520" fill="#ff8c1a"/>
+      <circle cx="522" cy="513" r="1.5" fill="#000"/>
+    </g>
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
+  `
+};
+
+/* ---------- START SCREEN HANDLERS ---------- */
+document.querySelectorAll('.scene-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    let scene = btn.dataset.scene;
+    if (scene === 'random') {
+      const opts = ['house', 'hospital', 'park'];
+      scene = opts[Math.floor(Math.random() * opts.length)];
+    }
+    startGame(scene);
+  });
+});
+
+document.getElementById('restart-btn').addEventListener('click', resetToMenu);
+document.getElementById('play-again').addEventListener('click', resetToMenu);
+
+/* ---------- GAME FLOW ---------- */
+function startGame(sceneName) {
+  currentScene = sceneName;
+  clicks = 0;
+  startEl.style.display = 'none';
+  gameoverEl.style.display = 'none';
+  gameEl.style.display = 'block';
+
+  // Render scene SVG
+  svgEl.innerHTML = SCENES[sceneName]();
+  // Sort burnable elements by data-burn order
+  burnableEls = Array.from(svgEl.querySelectorAll('.burnable'))
+    .sort((a, b) => (+a.dataset.burn) - (+b.dataset.burn));
+
+  // Reset fire size + position
+  fireEl.style.width  = '60px';
+  fireEl.style.height = '80px';
+  fireWrap.style.left = '50%';
+  fireWrap.style.top  = '62%';
+
+  updateCounter();
+
+  // Clear FX
+  fxEl.innerHTML = '';
+}
+
+function resetToMenu() {
+  gameEl.style.display = 'none';
+  gameoverEl.style.display = 'none';
+  startEl.style.display = 'flex';
+  fxEl.innerHTML = '';
+  clicks = 0;
+}
+
+/* ---------- CLICK / GROW ---------- */
+fireWrap.addEventListener('click', onFireClick);
+
+function onFireClick(e) {
+  if (clicks >= MAX_CLICKS) return;
+  clicks++;
+
+  // Grow the fire (linear with slight curve)
+  const t = clicks / MAX_CLICKS;
+  const baseW = 60, baseH = 80;
+  const maxW  = window.innerWidth  * 1.3;
+  const maxH  = window.innerHeight * 1.5;
+  const w = baseW + (maxW - baseW) * Math.pow(t, 1.4);
+  const h = baseH + (maxH - baseH) * Math.pow(t, 1.4);
+  fireEl.style.width  = w + 'px';
+  fireEl.style.height = h + 'px';
+
+  // Drift fire downward as it grows so it covers the scene
+  const newTop = 62 - t * 12;
+  fireWrap.style.top = newTop + '%';
+
+  // Sparks at click point
+  const rect = fireWrap.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top  + rect.height / 2;
+  spawnSparks(cx, cy, 8 + clicks);
+
+  // Smoke
+  spawnSmoke(cx, cy, Math.min(40 + clicks * 6, 200));
+
+  // Floating "+1" text
+  popText(cx, cy - rect.height/3, '🔥');
+
+  // Burn the next scene element (every 2 clicks roughly)
+  const burnIndex = Math.floor((clicks / MAX_CLICKS) * burnableEls.length);
+  for (let i = 0; i < burnIndex && i < burnableEls.length; i++) {
+    const el = burnableEls[i];
+    if (!el.classList.contains('charred')) {
+      el.classList.add('charred');
+    }
+    if (clicks >= MAX_CLICKS - 2) {
+      el.classList.add('gone');
+    }
+  }
+
+  // Screen shake at higher intensity
+  if (clicks > 8) {
+    gameEl.classList.remove('shake');
+    void gameEl.offsetWidth;
+    gameEl.classList.add('shake');
+  }
+
+  // Flash for big clicks
+  if (clicks > 12) {
+    flashEl.style.opacity = Math.min(0.4, (clicks - 12) * 0.05);
+    setTimeout(() => { flashEl.style.opacity = 0; }, 80);
+  }
+
+  // Background gets darker / smokier
+  document.body.style.background = `rgb(${Math.max(11, 30 - clicks)}, ${Math.max(0, 16 - clicks)}, ${Math.max(0, 32 - clicks*2)})`;
+
+  updateCounter();
+
+  if (clicks >= MAX_CLICKS) {
+    setTimeout(endGame, 900);
+  }
+}
+
+function updateCounter() {
+  counterEl.textContent = `Clicks: ${clicks} / ${MAX_CLICKS}`;
+}
+
+/* ---------- FX ---------- */
+function spawnSparks(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark';
+    s.style.left = x + 'px';
+    s.style.top  = y + 'px';
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = 60 + Math.random() * 120;
+    s.style.setProperty('--sx', Math.cos(angle) * dist + 'px');
+    s.style.setProperty('--sy', (Math.sin(angle) * dist - 40) + 'px');
+    s.style.width  = (4 + Math.random() * 6) + 'px';
+    s.style.height = s.style.width;
+    fxEl.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+}
+
+function spawnSmoke(x, y, size) {
+  const n = 1 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('div');
+    s.className = 'smoke';
+    s.style.left = (x + (Math.random() - 0.5) * 40) + 'px';
+    s.style.top  = y + 'px';
+    s.style.width  = size + 'px';
+    s.style.height = size + 'px';
+    s.style.setProperty('--dx', ((Math.random() - 0.5) * 200) + 'px');
+    fxEl.appendChild(s);
+    setTimeout(() => s.remove(), 3100);
+  }
+}
+
+function popText(x, y, txt) {
+  const p = document.createElement('div');
+  p.className = 'pop';
+  p.textContent = txt;
+  p.style.left = x + 'px';
+  p.style.top  = y + 'px';
+  fxEl.appendChild(p);
+  setTimeout(() => p.remove(), 750);
+}
+
+/* ---------- END ---------- */
+function endGame() {
+  const messages = {
+    house:    "The cozy home is now a cozy crater. 🏚️🔥",
+    hospital: "Patients evacuated. Building... not so much. 🏥💥",
+    park:     "Even the duck didn't make it. 🦆🔥"
+  };
+  endMsgEl.textContent = messages[currentScene] || "Total destruction achieved!";
+  gameoverEl.style.display = 'flex';
+}
+</script>
+</body>
+</html>

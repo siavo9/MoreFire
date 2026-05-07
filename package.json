@@ -1,0 +1,15 @@
+{
+  "name": "morefire",
+  "version": "1.0.0",
+  "description": "MoreFire — click the fire, watch it grow, burn the scene.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.x"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
