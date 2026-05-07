@@ -211,8 +211,15 @@
     text-align: center;
   }
   #bucket-wrap:hover { transform: translateY(-50%) scale(1.06) rotate(-3deg); }
-  #bucket-wrap:active { transform: translateY(-50%) scale(0.92) rotate(6deg); }
   #bucket-svg { width: 110px; height: 130px; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5)); }
+  /* Bucket tipping animation when clicked */
+  #bucket-wrap.tipping #bucket-svg { animation: bucketTip 0.7s ease-in-out; transform-origin: 50% 90%; }
+  @keyframes bucketTip {
+    0%   { transform: rotate(0deg); }
+    25%  { transform: rotate(-70deg); }
+    55%  { transform: rotate(-70deg); }
+    100% { transform: rotate(0deg); }
+  }
   #bucket-label {
     margin-top: 6px;
     font-size: 14px; font-weight: bold;
@@ -222,23 +229,57 @@
     text-shadow: 1px 1px 0 #000;
     color: #d8f2ff;
   }
-  /* Water splash */
+  /* Big water droplets that arc from the bucket to the fire */
+  .water-drop {
+    position: absolute; pointer-events: none;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d8f2ff 25%, #6cd0ff 60%, #1d7fd0 100%);
+    box-shadow: 0 0 18px rgba(108, 208, 255, 0.95), inset -4px -6px 10px rgba(29, 127, 208, 0.45);
+    animation: waterArc var(--dur, 0.75s) cubic-bezier(0.45, 0, 0.7, 1) forwards;
+    z-index: 9;
+  }
+  @keyframes waterArc {
+    0%   { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 0.9; }
+    20%  { opacity: 1; }
+    60%  { transform: translate(calc(-50% + var(--mx,0px)), calc(-50% + var(--my,0px))) scale(1) rotate(20deg); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--ex,0px)), calc(-50% + var(--ey,0px))) scale(0.85) rotate(35deg); opacity: 0; }
+  }
+  /* Big splash ring on the fire */
+  .big-splash {
+    position: absolute; pointer-events: none;
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(216,242,255,0.7) 30%, rgba(108,208,255,0.5) 60%, rgba(78,168,255,0) 100%);
+    box-shadow: 0 0 40px rgba(108,208,255,0.9), 0 0 80px rgba(108,208,255,0.5);
+    animation: bigSplash 0.9s ease-out forwards;
+    z-index: 9;
+  }
+  @keyframes bigSplash {
+    0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+    50%  { transform: translate(-50%, -50%) scale(1.8); opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(3.0); opacity: 0; }
+  }
+  /* Smaller splash droplets exploding outward from impact */
   .splash {
     position: absolute; pointer-events: none;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: radial-gradient(circle, #d8f2ff 0%, #4ea8ff 70%, transparent 100%);
-    animation: splash 0.9s ease-out forwards;
-    box-shadow: 0 0 12px #6cd0ff;
+    width: 22px; height: 22px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d8f2ff 30%, #4ea8ff 80%, transparent 100%);
+    animation: splash 0.95s ease-out forwards;
+    box-shadow: 0 0 16px #6cd0ff;
+    z-index: 9;
   }
   @keyframes splash {
-    0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
-    100% { transform: translate(calc(-50% + var(--wx,0px)), calc(-50% + var(--wy,80px))) scale(1.4); opacity: 0; }
+    0%   { transform: translate(-50%, -50%) scale(0.6); opacity: 1; }
+    60%  { opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--wx,0px)), calc(-50% + var(--wy,80px))) scale(0.6); opacity: 0; }
   }
   .steam {
     position: absolute; pointer-events: none;
     width: 30px; height: 30px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+    background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%);
     animation: rise 2.4s ease-out forwards;
+    z-index: 8;
   }
 
   /* ---------- HERO ENDING ---------- */
@@ -314,6 +355,7 @@
       4px 4px 0 #3a0000,
       -2px 2px 0 #6b1500;
     letter-spacing: 2px;
+    position: relative; z-index: 2;
   }
   #pyro p {
     font-size: clamp(18px, 2.6vw, 28px);
@@ -322,9 +364,10 @@
     font-weight: bold;
     text-shadow: 1px 1px 0 #3a0000, 0 0 14px #ff2a00;
     letter-spacing: 1px;
+    position: relative; z-index: 2;
   }
   #pyro .pyro-art {
-    position: relative;
+    position: relative; z-index: 2;
     width: clamp(220px, 38vw, 360px);
     height: clamp(220px, 38vw, 360px);
     display: flex; align-items: center; justify-content: center;
@@ -348,6 +391,7 @@
     animation: pyroDance 0.45s ease-in-out infinite alternate;
     filter: drop-shadow(0 0 24px #ff7a00);
     pointer-events: none;
+    z-index: 0;
   }
   @keyframes pyroDance {
     0%   { transform: scaleY(1)    skewX(-6deg); }
@@ -360,6 +404,8 @@
     font-size: 22px; font-weight: bold; font-family: inherit;
     text-shadow: 1px 1px 0 #6b1500;
     transition: transform 0.15s;
+    position: relative; z-index: 3;
+    box-shadow: 0 0 24px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.5);
   }
   #pyro button:hover { transform: scale(1.08); }
 </style>
@@ -768,17 +814,33 @@ function onBucketClick(e) {
 
   applyState();
 
-  // Splash + steam at the fire location
+  // Tip the bucket
+  bucketWrap.classList.remove('tipping');
+  void bucketWrap.offsetWidth;
+  bucketWrap.classList.add('tipping');
+
+  // Source point: lip of the bucket; target point: fire body
+  const bRect = bucketWrap.getBoundingClientRect();
   const fireRect = fireWrap.getBoundingClientRect();
+  const sx = bRect.left + bRect.width * 0.25;     // tipped-left lip
+  const sy = bRect.top  + bRect.height * 0.35;
   const fx = fireRect.left + fireRect.width / 2;
   const fy = fireRect.top  + fireRect.height / 3;
-  spawnSplash(fx, fy, 14);
-  spawnSteam(fx, fy, 60);
-  popText(fx, fy - fireRect.height/3, '💧');
+
+  // Big arcing droplets from bucket -> fire (delayed to follow the tip)
+  spawnWaterArc(sx, sy, fx, fy, 18);
+
+  // Big splash ring + smaller splashes + steam at fire (slightly delayed to land with droplets)
+  setTimeout(() => {
+    spawnBigSplash(fx, fy);
+    spawnSplash(fx, fy, 22);
+    spawnSteam(fx, fy, 80);
+    popText(fx, fy - fireRect.height/3, '💧');
+  }, 280);
 
   if (clicks <= 0) {
     gameEnded = true;
-    setTimeout(endGameHero, 700);
+    setTimeout(endGameHero, 950);
   }
 }
 
@@ -874,15 +936,56 @@ function spawnSplash(x, y, count) {
     d.className = 'splash';
     d.style.left = x + 'px';
     d.style.top  = y + 'px';
-    const angle = Math.random() * Math.PI - Math.PI;
-    const dist  = 60 + Math.random() * 140;
+    // Splashes shoot outward and up (negative y) like a real splash crown
+    const angle = Math.random() * Math.PI; // 0..PI = upper half
+    const dist  = 80 + Math.random() * 160;
     d.style.setProperty('--wx', Math.cos(angle) * dist + 'px');
-    d.style.setProperty('--wy', (Math.abs(Math.sin(angle)) * dist + 30) + 'px');
-    d.style.width  = (8 + Math.random() * 10) + 'px';
-    d.style.height = d.style.width;
+    d.style.setProperty('--wy', (-Math.sin(angle) * dist * 0.8 + 60) + 'px');
+    const size = 16 + Math.random() * 22;
+    d.style.width  = size + 'px';
+    d.style.height = size + 'px';
     fxEl.appendChild(d);
-    setTimeout(() => d.remove(), 1000);
+    setTimeout(() => d.remove(), 1100);
   }
+}
+
+/* Big droplets that arc from the bucket lip down to the fire. */
+function spawnWaterArc(sx, sy, tx, ty, count) {
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'water-drop';
+    d.style.left = sx + 'px';
+    d.style.top  = sy + 'px';
+    // Spread destination so the column of water has width
+    const spread = 70;
+    const ex = (tx - sx) + (Math.random() - 0.5) * spread;
+    const ey = (ty - sy) + (Math.random() - 0.5) * 30;
+    // Mid-point arcs upward then over (negative y bump)
+    const mx = ex * 0.55 + (Math.random() - 0.5) * 30;
+    const my = ey * 0.55 - 60 - Math.random() * 40;
+    d.style.setProperty('--mx', mx + 'px');
+    d.style.setProperty('--my', my + 'px');
+    d.style.setProperty('--ex', ex + 'px');
+    d.style.setProperty('--ey', ey + 'px');
+    const w = 22 + Math.random() * 28;
+    const h = w * (1.4 + Math.random() * 0.4);
+    d.style.width  = w + 'px';
+    d.style.height = h + 'px';
+    const dur = 0.55 + Math.random() * 0.35;
+    d.style.setProperty('--dur', dur + 's');
+    d.style.animationDelay = (i * 0.018 + Math.random() * 0.06) + 's';
+    fxEl.appendChild(d);
+    setTimeout(() => d.remove(), (dur + 0.4) * 1000 + i * 20);
+  }
+}
+
+function spawnBigSplash(x, y) {
+  const s = document.createElement('div');
+  s.className = 'big-splash';
+  s.style.left = x + 'px';
+  s.style.top  = y + 'px';
+  fxEl.appendChild(s);
+  setTimeout(() => s.remove(), 950);
 }
 
 function spawnSteam(x, y, size) {
