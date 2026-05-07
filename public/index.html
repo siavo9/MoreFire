@@ -188,9 +188,11 @@
   /* GAME OVER */
   #gameover {
     position: absolute; inset: 0;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
+    display: none; flex-direction: column; align-items: center; justify-content: safe center;
     background: radial-gradient(circle, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
-    color: #fff; z-index: 30; text-align: center; padding: 20px; gap: 22px;
+    color: #fff; z-index: 30; text-align: center; padding: 30px 20px; gap: 22px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   #gameover h2 {
     font-size: clamp(48px, 9vw, 100px);
@@ -297,10 +299,11 @@
   /* ---------- HERO ENDING ---------- */
   #hero {
     position: absolute; inset: 0;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
+    display: none; flex-direction: column; align-items: center; justify-content: safe center;
     background: radial-gradient(circle at 50% 30%, #fff8c4 0%, #7ec8ff 40%, #1f4a85 100%);
-    color: #082c5a; z-index: 30; text-align: center; padding: 20px; gap: 22px;
-    overflow: hidden;
+    color: #082c5a; z-index: 30; text-align: center; padding: 30px 20px; gap: 22px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   #hero h2 {
     font-size: clamp(48px, 9vw, 100px);
@@ -346,12 +349,13 @@
   /* ---------- PYROMANIAC ENDING ---------- */
   #pyro {
     position: absolute; inset: 0;
-    display: none; flex-direction: column; align-items: center; justify-content: center;
+    display: none; flex-direction: column; align-items: center; justify-content: safe center;
     background:
       radial-gradient(circle at 50% 40%, rgba(255,80,0,0.55) 0%, rgba(0,0,0,0) 60%),
       radial-gradient(circle, #2a0000 0%, #000 100%);
-    color: #ffe0a8; z-index: 30; text-align: center; padding: 20px; gap: 18px;
-    overflow: hidden;
+    color: #ffe0a8; z-index: 30; text-align: center; padding: 30px 20px; gap: 18px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     animation: pyroFlicker 0.18s infinite alternate;
   }
   @keyframes pyroFlicker {
