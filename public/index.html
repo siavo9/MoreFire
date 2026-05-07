@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ff5500" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="MoreFire" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/manifest.json" />
 <title>MoreFire 🔥</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
@@ -13,11 +19,32 @@
     background: #0b1020;
     color: #fff;
   }
+  /* Full-viewport scene container — svh handles iOS dynamic toolbar without clipping */
+  .scene,
   #app {
     position: relative;
     width: 100vw;
     height: 100vh;
+    height: 100svh;
     overflow: hidden;
+  }
+
+  /* Touch-friendly tap target: ensures a 96px+ minimum hit area on mobile,
+     suppresses iOS tap highlight + double-tap zoom delay. */
+  .fire-target {
+    min-width: 96px;
+    min-height: 96px;
+    padding: 16px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  @media (min-width: 640px) {
+    .fire-target { min-width: 120px; min-height: 120px; padding: 18px; }
+  }
+  @media (min-width: 1024px) {
+    .fire-target { min-width: 144px; min-height: 144px; padding: 20px; }
   }
 
   /* ---------- START SCREEN ---------- */
@@ -96,16 +123,19 @@
   }
   #restart-btn:hover { background: #ffe0b3; }
 
-  /* Fire click target */
+  /* Fire click target — vertical drift driven by --fire-y (set in JS) so we
+     animate transform instead of `top`, avoiding layout work each click.
+     Baseline `top: 62%` matches the t=0 position from the original formula. */
   #fire-wrap {
+    --fire-y: 0px;
     position: absolute;
-    left: 50%; top: 60%;
-    transform: translate(-50%, -50%);
+    left: 50%; top: 62%;
+    transform: translate(-50%, calc(-50% + var(--fire-y)));
     cursor: pointer;
-    transition: transform 0.12s ease-out;
+    transition: transform 0.18s ease-out;
     z-index: 5;
   }
-  #fire-wrap:active { transform: translate(-50%, -50%) scale(0.92); }
+  #fire-wrap:active { transform: translate(-50%, calc(-50% + var(--fire-y))) scale(0.92); }
   .fire {
     position: relative;
     width: 80px; height: 100px;
@@ -117,9 +147,10 @@
     width: 70%; height: 90%;
     background: radial-gradient(ellipse at 50% 100%, #fff8a8 0%, #ffd23f 25%, #ff7e1a 55%, #c0392b 80%, transparent 100%);
     border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
     animation: dance 0.5s ease-in-out infinite alternate;
     filter: drop-shadow(0 0 20px #ff7a00);
+    will-change: transform, opacity;
   }
   .flame.inner {
     width: 45%; height: 65%;
@@ -128,9 +159,9 @@
     filter: none;
   }
   @keyframes dance {
-    0%   { transform: translateX(-50%) scaleY(1)   skewX(-3deg); }
-    50%  { transform: translateX(-50%) scaleY(1.08) skewX(2deg); }
-    100% { transform: translateX(-50%) scaleY(0.95) skewX(-2deg); }
+    0%   { transform: translate3d(-50%, 0, 0) scaleY(1)    skewX(-3deg); }
+    50%  { transform: translate3d(-50%, 0, 0) scaleY(1.08) skewX(2deg); }
+    100% { transform: translate3d(-50%, 0, 0) scaleY(0.95) skewX(-2deg); }
   }
 
   /* Smoke + sparks layer */
@@ -427,7 +458,7 @@
 </style>
 </head>
 <body>
-<div id="app">
+<div id="app" class="scene">
 
   <!-- START SCREEN -->
   <div id="start">
@@ -452,7 +483,7 @@
   <div id="game">
     <svg id="scene-svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice"></svg>
     <div id="fx"></div>
-    <div id="fire-wrap" title="Click me!">
+    <div id="fire-wrap" class="fire-target" title="Click me!">
       <div class="fire" id="fire">
         <div class="flame outer"></div>
         <div class="flame inner"></div>
@@ -1363,9 +1394,11 @@ function applyState() {
   fireEl.style.height = h + 'px';
   fireEl.style.opacity = clicks <= 0 ? 0 : 1;
 
-  // Drift fire downward as it grows
-  const newTop = 62 - t * 12;
-  fireWrap.style.top = newTop + '%';
+  // Drift fire upward as it grows. Express as transform offset (px) instead
+  // of mutating `top`, so the browser animates on the compositor.
+  const driftPct = -t * 12; // negative = up, peaks at -12% of viewport
+  const driftPx = driftPct / 100 * window.innerHeight;
+  fireWrap.style.setProperty('--fire-y', driftPx + 'px');
 
   // Burn or restore scene elements based on current clicks
   const burnIndex = Math.floor((clicks / MAX_CLICKS) * burnableEls.length);
