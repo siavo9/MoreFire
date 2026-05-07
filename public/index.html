@@ -199,6 +199,169 @@
   .burnable { transition: filter 1s, opacity 1s; }
   .charred  { filter: brightness(0.15) saturate(0.2); }
   .gone     { opacity: 0; }
+
+  /* ---------- WATER BUCKET ---------- */
+  #bucket-wrap {
+    position: absolute;
+    right: 24px; top: 55%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 7;
+    transition: transform 0.12s ease-out;
+    text-align: center;
+  }
+  #bucket-wrap:hover { transform: translateY(-50%) scale(1.06) rotate(-3deg); }
+  #bucket-wrap:active { transform: translateY(-50%) scale(0.92) rotate(6deg); }
+  #bucket-svg { width: 110px; height: 130px; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5)); }
+  #bucket-label {
+    margin-top: 6px;
+    font-size: 14px; font-weight: bold;
+    background: rgba(0,0,0,0.55);
+    padding: 4px 10px; border-radius: 999px;
+    border: 2px solid #6cd0ff;
+    text-shadow: 1px 1px 0 #000;
+    color: #d8f2ff;
+  }
+  /* Water splash */
+  .splash {
+    position: absolute; pointer-events: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: radial-gradient(circle, #d8f2ff 0%, #4ea8ff 70%, transparent 100%);
+    animation: splash 0.9s ease-out forwards;
+    box-shadow: 0 0 12px #6cd0ff;
+  }
+  @keyframes splash {
+    0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--wx,0px)), calc(-50% + var(--wy,80px))) scale(1.4); opacity: 0; }
+  }
+  .steam {
+    position: absolute; pointer-events: none;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+    animation: rise 2.4s ease-out forwards;
+  }
+
+  /* ---------- HERO ENDING ---------- */
+  #hero {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 30%, #fff8c4 0%, #7ec8ff 40%, #1f4a85 100%);
+    color: #082c5a; z-index: 30; text-align: center; padding: 20px; gap: 22px;
+    overflow: hidden;
+  }
+  #hero h2 {
+    font-size: clamp(48px, 9vw, 100px);
+    color: #fff;
+    text-shadow: 0 0 30px #ffe680, 4px 4px 0 #1f4a85, 0 0 60px #ffd86b;
+    letter-spacing: 2px;
+    animation: heroPulse 2s infinite alternate;
+  }
+  @keyframes heroPulse {
+    0%   { transform: scale(1); filter: drop-shadow(0 0 12px #ffd86b); }
+    100% { transform: scale(1.04); filter: drop-shadow(0 0 30px #fff8c4); }
+  }
+  #hero p { font-size: clamp(16px, 2.4vw, 24px); max-width: 600px; color: #082c5a; font-weight: bold; }
+  #hero .hero-art {
+    font-size: clamp(80px, 18vw, 200px);
+    line-height: 1;
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
+    animation: heroBob 2.5s ease-in-out infinite;
+  }
+  @keyframes heroBob {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%      { transform: translateY(-14px) rotate(3deg); }
+  }
+  #hero button {
+    cursor: pointer; padding: 14px 28px; border-radius: 999px;
+    border: 4px solid #fff; background: #2ec27e; color: #fff;
+    font-size: 22px; font-weight: bold; font-family: inherit;
+    text-shadow: 1px 1px 0 #1f6b46;
+    transition: transform 0.15s;
+  }
+  #hero button:hover { transform: scale(1.08); }
+  /* Sparkles for hero */
+  .sparkle {
+    position: absolute; pointer-events: none;
+    font-size: 28px;
+    animation: twinkle 2.2s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8) rotate(0deg); }
+    50%      { opacity: 1;   transform: scale(1.3) rotate(20deg); }
+  }
+
+  /* ---------- PYROMANIAC ENDING ---------- */
+  #pyro {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    background:
+      radial-gradient(circle at 50% 40%, rgba(255,80,0,0.55) 0%, rgba(0,0,0,0) 60%),
+      radial-gradient(circle, #2a0000 0%, #000 100%);
+    color: #ffe0a8; z-index: 30; text-align: center; padding: 20px; gap: 18px;
+    overflow: hidden;
+    animation: pyroFlicker 0.18s infinite alternate;
+  }
+  @keyframes pyroFlicker {
+    0%   { filter: brightness(1)    contrast(1); }
+    100% { filter: brightness(1.18) contrast(1.1) hue-rotate(-6deg); }
+  }
+  #pyro h2 {
+    font-size: clamp(44px, 8vw, 92px);
+    color: #fff;
+    text-shadow:
+      0 0 20px #ff2a00,
+      0 0 50px #ff7e1a,
+      4px 4px 0 #3a0000,
+      -2px 2px 0 #6b1500;
+    letter-spacing: 2px;
+  }
+  #pyro p {
+    font-size: clamp(18px, 2.6vw, 28px);
+    max-width: 700px;
+    color: #ffd28a;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #3a0000, 0 0 14px #ff2a00;
+    letter-spacing: 1px;
+  }
+  #pyro .pyro-art {
+    position: relative;
+    width: clamp(220px, 38vw, 360px);
+    height: clamp(220px, 38vw, 360px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #pyro .pyro-art .smile-svg {
+    width: 100%; height: 100%;
+    filter: drop-shadow(0 0 30px #ff2a00) drop-shadow(0 0 60px #ff7e1a);
+    animation: smileLeer 3s ease-in-out infinite;
+  }
+  @keyframes smileLeer {
+    0%, 100% { transform: rotate(-3deg) scale(1); }
+    50%      { transform: rotate(3deg)  scale(1.04); }
+  }
+  /* Background party flames around the pyromaniac smile */
+  .pyro-flame {
+    position: absolute; bottom: 0;
+    width: 60px; height: 120px;
+    background: radial-gradient(ellipse at 50% 100%, #fff8a8 0%, #ffd23f 25%, #ff7e1a 55%, #c0392b 80%, transparent 100%);
+    border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
+    transform-origin: 50% 100%;
+    animation: pyroDance 0.45s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 24px #ff7a00);
+    pointer-events: none;
+  }
+  @keyframes pyroDance {
+    0%   { transform: scaleY(1)    skewX(-6deg); }
+    50%  { transform: scaleY(1.18) skewX(4deg); }
+    100% { transform: scaleY(0.9)  skewX(-3deg); }
+  }
+  #pyro button {
+    cursor: pointer; padding: 14px 28px; border-radius: 999px;
+    border: 4px solid #fff; background: #ff2a00; color: #fff;
+    font-size: 22px; font-weight: bold; font-family: inherit;
+    text-shadow: 1px 1px 0 #6b1500;
+    transition: transform 0.15s;
+  }
+  #pyro button:hover { transform: scale(1.08); }
 </style>
 </head>
 <body>
@@ -227,17 +390,67 @@
       </div>
     </div>
     <div id="hud">
-      <div id="counter">Clicks: 0 / 20</div>
+      <div id="counter">Fire: 5 / 20</div>
       <button id="restart-btn">↺ Restart</button>
+    </div>
+    <!-- WATER BUCKET -->
+    <div id="bucket-wrap" title="Pour water!">
+      <svg id="bucket-svg" viewBox="0 0 100 120" aria-hidden="true">
+        <!-- handle -->
+        <path d="M20 30 Q50 -10 80 30" fill="none" stroke="#7a4a1d" stroke-width="6" stroke-linecap="round"/>
+        <!-- bucket body -->
+        <path d="M14 32 L86 32 L78 110 L22 110 Z" fill="#9aa7b3" stroke="#3a4654" stroke-width="3"/>
+        <!-- rim -->
+        <ellipse cx="50" cy="32" rx="36" ry="8" fill="#cbd5df" stroke="#3a4654" stroke-width="3"/>
+        <!-- water surface -->
+        <ellipse cx="50" cy="34" rx="30" ry="6" fill="#4ea8ff"/>
+        <!-- water shine -->
+        <ellipse cx="42" cy="33" rx="10" ry="2" fill="#d8f2ff" opacity="0.85"/>
+        <!-- droplet -->
+        <path d="M50 92 Q44 102 50 110 Q56 102 50 92 Z" fill="#6cd0ff" opacity="0.9"/>
+      </svg>
+      <div id="bucket-label">💧 Pour Water</div>
     </div>
     <div id="flash"></div>
   </div>
 
-  <!-- GAME OVER -->
-  <div id="gameover">
-    <h2>TOTAL DESTRUCTION!</h2>
-    <p id="end-msg">You burned it all down. Hope you feel better. 😈</p>
-    <button id="play-again">Play Again</button>
+  <!-- GAME OVER (Pyromaniac) -->
+  <div id="pyro">
+    <h2>Congratulations! You Destroyed Everything!</h2>
+    <p>You are a Crazy Pyromaniac!</p>
+    <div class="pyro-art">
+      <!-- Menacing smile -->
+      <svg class="smile-svg" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <radialGradient id="faceGrad" cx="50%" cy="45%" r="60%">
+            <stop offset="0%"  stop-color="#ffd86b"/>
+            <stop offset="60%" stop-color="#ff7e1a"/>
+            <stop offset="100%" stop-color="#6b1500"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="90" fill="url(#faceGrad)" stroke="#3a0000" stroke-width="4"/>
+        <!-- evil eyes -->
+        <path d="M50 80 L80 70 L78 90 Z" fill="#3a0000"/>
+        <path d="M150 80 L120 70 L122 90 Z" fill="#3a0000"/>
+        <circle cx="68" cy="82" r="4" fill="#fff"/>
+        <circle cx="132" cy="82" r="4" fill="#fff"/>
+        <!-- menacing smile with teeth -->
+        <path d="M40 120 Q100 180 160 120 Q150 145 100 155 Q50 145 40 120 Z"
+              fill="#1a0000" stroke="#3a0000" stroke-width="3"/>
+        <!-- jagged teeth -->
+        <path d="M55 130 L65 145 L72 130 L80 148 L88 130 L96 150 L104 130 L112 150 L120 130 L128 148 L136 130 L144 145 L152 130 Z"
+              fill="#fff" stroke="#3a0000" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <button id="pyro-again">Play Again</button>
+  </div>
+
+  <!-- GAME OVER (Hero) -->
+  <div id="hero">
+    <h2>Congratulations! You are a Hero!</h2>
+    <p>You saved the day. The fire is out. The world is grateful.</p>
+    <div class="hero-art">🦸‍♂️🚒💧</div>
+    <button id="hero-again">Play Again</button>
   </div>
 
 </div>
@@ -247,7 +460,8 @@
    MoreFire - simple click-to-burn game
    =========================================================== */
 
-const MAX_CLICKS = 20;
+const MAX_CLICKS  = 20;
+const START_FIRE  = 5;
 
 const startEl    = document.getElementById('start');
 const gameEl     = document.getElementById('game');
@@ -257,12 +471,14 @@ const fireEl     = document.getElementById('fire');
 const counterEl  = document.getElementById('counter');
 const fxEl       = document.getElementById('fx');
 const flashEl    = document.getElementById('flash');
-const gameoverEl = document.getElementById('gameover');
-const endMsgEl   = document.getElementById('end-msg');
+const pyroEl     = document.getElementById('pyro');
+const heroEl     = document.getElementById('hero');
+const bucketWrap = document.getElementById('bucket-wrap');
 
 let clicks = 0;
 let currentScene = null;
 let burnableEls = []; // scene parts in destruction order
+let gameEnded = false;
 
 /* ---------- SCENES (SVG strings) ---------- */
 const SCENES = {
@@ -467,15 +683,19 @@ document.querySelectorAll('.scene-btn').forEach(btn => {
 });
 
 document.getElementById('restart-btn').addEventListener('click', resetToMenu);
-document.getElementById('play-again').addEventListener('click', resetToMenu);
+document.getElementById('pyro-again').addEventListener('click', resetToMenu);
+document.getElementById('hero-again').addEventListener('click', resetToMenu);
 
 /* ---------- GAME FLOW ---------- */
 function startGame(sceneName) {
   currentScene = sceneName;
-  clicks = 0;
+  clicks = START_FIRE;
+  gameEnded = false;
   startEl.style.display = 'none';
-  gameoverEl.style.display = 'none';
+  pyroEl.style.display = 'none';
+  heroEl.style.display = 'none';
   gameEl.style.display = 'block';
+  bucketWrap.style.display = 'block';
 
   // Render scene SVG
   svgEl.innerHTML = SCENES[sceneName]();
@@ -483,70 +703,44 @@ function startGame(sceneName) {
   burnableEls = Array.from(svgEl.querySelectorAll('.burnable'))
     .sort((a, b) => (+a.dataset.burn) - (+b.dataset.burn));
 
-  // Reset fire size + position
-  fireEl.style.width  = '60px';
-  fireEl.style.height = '80px';
   fireWrap.style.left = '50%';
-  fireWrap.style.top  = '62%';
-
-  updateCounter();
 
   // Clear FX
   fxEl.innerHTML = '';
+
+  // Apply initial visuals based on START_FIRE
+  applyState();
 }
 
 function resetToMenu() {
   gameEl.style.display = 'none';
-  gameoverEl.style.display = 'none';
+  pyroEl.style.display = 'none';
+  heroEl.style.display = 'none';
   startEl.style.display = 'flex';
   fxEl.innerHTML = '';
   clicks = 0;
+  gameEnded = false;
+  document.body.style.background = '#0b1020';
 }
 
 /* ---------- CLICK / GROW ---------- */
 fireWrap.addEventListener('click', onFireClick);
+bucketWrap.addEventListener('click', onBucketClick);
 
 function onFireClick(e) {
+  if (gameEnded) return;
   if (clicks >= MAX_CLICKS) return;
   clicks++;
 
-  // Grow the fire (linear with slight curve)
-  const t = clicks / MAX_CLICKS;
-  const baseW = 60, baseH = 80;
-  const maxW  = window.innerWidth  * 1.3;
-  const maxH  = window.innerHeight * 1.5;
-  const w = baseW + (maxW - baseW) * Math.pow(t, 1.4);
-  const h = baseH + (maxH - baseH) * Math.pow(t, 1.4);
-  fireEl.style.width  = w + 'px';
-  fireEl.style.height = h + 'px';
+  applyState();
 
-  // Drift fire downward as it grows so it covers the scene
-  const newTop = 62 - t * 12;
-  fireWrap.style.top = newTop + '%';
-
-  // Sparks at click point
+  // Sparks + smoke + floating fire emoji at click point
   const rect = fireWrap.getBoundingClientRect();
   const cx = rect.left + rect.width / 2;
   const cy = rect.top  + rect.height / 2;
   spawnSparks(cx, cy, 8 + clicks);
-
-  // Smoke
   spawnSmoke(cx, cy, Math.min(40 + clicks * 6, 200));
-
-  // Floating "+1" text
   popText(cx, cy - rect.height/3, '🔥');
-
-  // Burn the next scene element (every 2 clicks roughly)
-  const burnIndex = Math.floor((clicks / MAX_CLICKS) * burnableEls.length);
-  for (let i = 0; i < burnIndex && i < burnableEls.length; i++) {
-    const el = burnableEls[i];
-    if (!el.classList.contains('charred')) {
-      el.classList.add('charred');
-    }
-    if (clicks >= MAX_CLICKS - 2) {
-      el.classList.add('gone');
-    }
-  }
 
   // Screen shake at higher intensity
   if (clicks > 8) {
@@ -561,18 +755,74 @@ function onFireClick(e) {
     setTimeout(() => { flashEl.style.opacity = 0; }, 80);
   }
 
-  // Background gets darker / smokier
-  document.body.style.background = `rgb(${Math.max(11, 30 - clicks)}, ${Math.max(0, 16 - clicks)}, ${Math.max(0, 32 - clicks*2)})`;
-
-  updateCounter();
-
   if (clicks >= MAX_CLICKS) {
-    setTimeout(endGame, 900);
+    gameEnded = true;
+    setTimeout(endGamePyro, 900);
   }
 }
 
+function onBucketClick(e) {
+  if (gameEnded) return;
+  if (clicks <= 0) return;
+  clicks--;
+
+  applyState();
+
+  // Splash + steam at the fire location
+  const fireRect = fireWrap.getBoundingClientRect();
+  const fx = fireRect.left + fireRect.width / 2;
+  const fy = fireRect.top  + fireRect.height / 3;
+  spawnSplash(fx, fy, 14);
+  spawnSteam(fx, fy, 60);
+  popText(fx, fy - fireRect.height/3, '💧');
+
+  if (clicks <= 0) {
+    gameEnded = true;
+    setTimeout(endGameHero, 700);
+  }
+}
+
+/* Recompute every visual based on current `clicks`. */
+function applyState() {
+  const t = clicks / MAX_CLICKS;
+  const baseW = 60, baseH = 80;
+  const maxW  = window.innerWidth  * 1.3;
+  const maxH  = window.innerHeight * 1.5;
+  const w = baseW + (maxW - baseW) * Math.pow(t, 1.4);
+  const h = baseH + (maxH - baseH) * Math.pow(t, 1.4);
+  fireEl.style.width  = w + 'px';
+  fireEl.style.height = h + 'px';
+  fireEl.style.opacity = clicks <= 0 ? 0 : 1;
+
+  // Drift fire downward as it grows
+  const newTop = 62 - t * 12;
+  fireWrap.style.top = newTop + '%';
+
+  // Burn or restore scene elements based on current clicks
+  const burnIndex = Math.floor((clicks / MAX_CLICKS) * burnableEls.length);
+  for (let i = 0; i < burnableEls.length; i++) {
+    const el = burnableEls[i];
+    if (i < burnIndex) {
+      el.classList.add('charred');
+      if (clicks >= MAX_CLICKS - 2) {
+        el.classList.add('gone');
+      } else {
+        el.classList.remove('gone');
+      }
+    } else {
+      el.classList.remove('charred');
+      el.classList.remove('gone');
+    }
+  }
+
+  // Background tint
+  document.body.style.background = `rgb(${Math.max(11, 30 - clicks)}, ${Math.max(0, 16 - clicks)}, ${Math.max(0, 32 - clicks*2)})`;
+
+  updateCounter();
+}
+
 function updateCounter() {
-  counterEl.textContent = `Clicks: ${clicks} / ${MAX_CLICKS}`;
+  counterEl.textContent = `Fire: ${clicks} / ${MAX_CLICKS}`;
 }
 
 /* ---------- FX ---------- */
@@ -618,15 +868,78 @@ function popText(x, y, txt) {
   setTimeout(() => p.remove(), 750);
 }
 
-/* ---------- END ---------- */
-function endGame() {
-  const messages = {
-    house:    "The cozy home is now a cozy crater. 🏚️🔥",
-    hospital: "Patients evacuated. Building... not so much. 🏥💥",
-    park:     "Even the duck didn't make it. 🦆🔥"
-  };
-  endMsgEl.textContent = messages[currentScene] || "Total destruction achieved!";
-  gameoverEl.style.display = 'flex';
+function spawnSplash(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement('div');
+    d.className = 'splash';
+    d.style.left = x + 'px';
+    d.style.top  = y + 'px';
+    const angle = Math.random() * Math.PI - Math.PI;
+    const dist  = 60 + Math.random() * 140;
+    d.style.setProperty('--wx', Math.cos(angle) * dist + 'px');
+    d.style.setProperty('--wy', (Math.abs(Math.sin(angle)) * dist + 30) + 'px');
+    d.style.width  = (8 + Math.random() * 10) + 'px';
+    d.style.height = d.style.width;
+    fxEl.appendChild(d);
+    setTimeout(() => d.remove(), 1000);
+  }
+}
+
+function spawnSteam(x, y, size) {
+  const n = 2 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('div');
+    s.className = 'steam';
+    s.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
+    s.style.top  = y + 'px';
+    s.style.width  = size + 'px';
+    s.style.height = size + 'px';
+    s.style.setProperty('--dx', ((Math.random() - 0.5) * 120) + 'px');
+    fxEl.appendChild(s);
+    setTimeout(() => s.remove(), 2500);
+  }
+}
+
+/* ---------- END SCREENS ---------- */
+function endGamePyro() {
+  // Hide the bucket; show the pyromaniac screen with celebrating background flames.
+  bucketWrap.style.display = 'none';
+  pyroEl.style.display = 'flex';
+
+  // Spawn celebrating flames across the bottom (reset first in case of replay).
+  pyroEl.querySelectorAll('.pyro-flame').forEach(f => f.remove());
+  const w = window.innerWidth;
+  const count = Math.max(8, Math.floor(w / 90));
+  for (let i = 0; i < count; i++) {
+    const f = document.createElement('div');
+    f.className = 'pyro-flame';
+    f.style.left = ((i + 0.5) * (100 / count)) + '%';
+    f.style.transform = 'translateX(-50%)';
+    const scale = 0.6 + Math.random() * 1.2;
+    f.style.height = (90 * scale) + 'px';
+    f.style.width  = (50 * scale) + 'px';
+    f.style.animationDelay = (Math.random() * -0.6) + 's';
+    f.style.animationDuration = (0.35 + Math.random() * 0.35) + 's';
+    pyroEl.appendChild(f);
+  }
+}
+
+function endGameHero() {
+  // Hide the bucket; show the hero screen with sparkles.
+  bucketWrap.style.display = 'none';
+  heroEl.style.display = 'flex';
+
+  heroEl.querySelectorAll('.sparkle').forEach(s => s.remove());
+  const sparkles = ['✨', '🌟', '💫', '⭐'];
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.textContent = sparkles[i % sparkles.length];
+    s.style.left = (Math.random() * 100) + '%';
+    s.style.top  = (Math.random() * 100) + '%';
+    s.style.animationDelay = (Math.random() * -2.2) + 's';
+    heroEl.appendChild(s);
+  }
 }
 </script>
 </body>
