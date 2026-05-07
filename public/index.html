@@ -38,6 +38,16 @@
     letter-spacing: 2px;
   }
   #start p { font-size: clamp(16px, 2.4vw, 22px); opacity: 0.95; max-width: 600px; }
+  #start p.water-hint {
+    font-size: clamp(13px, 1.8vw, 17px);
+    background: rgba(0, 60, 120, 0.45);
+    border: 2px solid #6cd0ff;
+    padding: 8px 16px;
+    border-radius: 999px;
+    color: #d8f2ff;
+    text-shadow: 1px 1px 0 #001a33;
+    margin-top: -10px;
+  }
   #scene-picker {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -417,10 +427,17 @@
   <div id="start">
     <h1>🔥 MoreFire 🔥</h1>
     <p>Pick a scene. Click the fire. Watch it grow. <br>Cause maximum chaos in 20 clicks!</p>
+    <p class="water-hint">💧 Feeling merciful? Click the <b>water bucket</b> instead to put it out and become a hero.</p>
     <div id="scene-picker">
       <button class="scene-btn" data-scene="house">    <span class="emoji">🏠</span> House </button>
       <button class="scene-btn" data-scene="hospital"> <span class="emoji">🏥</span> Hospital </button>
       <button class="scene-btn" data-scene="park">     <span class="emoji">🌳</span> Park </button>
+      <button class="scene-btn" data-scene="farm">     <span class="emoji">🚜</span> Farm </button>
+      <button class="scene-btn" data-scene="city">     <span class="emoji">🏙️</span> City </button>
+      <button class="scene-btn" data-scene="monstertruck"><span class="emoji">🛻</span> Monster Truck </button>
+      <button class="scene-btn" data-scene="dump">     <span class="emoji">🗑️</span> Trash Dump </button>
+      <button class="scene-btn" data-scene="campsite"> <span class="emoji">⛺</span> Campsite </button>
+      <button class="scene-btn" data-scene="forest">   <span class="emoji">🌲</span> Forest </button>
       <button class="scene-btn" data-scene="random">   <span class="emoji">🎲</span> Random </button>
     </div>
   </div>
@@ -713,6 +730,490 @@ const SCENES = {
     <g class="burnable" data-burn="10">
       <rect y="450" width="1000" height="150" fill="transparent"/>
     </g>
+  `,
+
+  farm: () => `
+    <defs>
+      <linearGradient id="farmSky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stop-color="#ffd28a"/>
+        <stop offset="100%" stop-color="#ffe9c2"/>
+      </linearGradient>
+    </defs>
+    <rect class="bg" width="1000" height="450" fill="url(#farmSky)"/>
+    <rect y="450" width="1000" height="150" fill="#a3d36b"/>
+    <rect y="540" width="1000" height="60"  fill="#7fb84e"/>
+    <!-- sun -->
+    <circle class="burnable" data-burn="9" cx="180" cy="120" r="48" fill="#ffd86b"/>
+    <!-- silo -->
+    <g class="burnable" data-burn="6">
+      <rect x="80" y="280" width="100" height="200" fill="#cfd6db" stroke="#5a6470" stroke-width="3"/>
+      <ellipse cx="130" cy="280" rx="50" ry="14" fill="#9aa7b3" stroke="#5a6470" stroke-width="3"/>
+      <path d="M80 280 Q130 230 180 280 Z" fill="#a3aeb8" stroke="#5a6470" stroke-width="3"/>
+    </g>
+    <!-- barn body -->
+    <g class="burnable" data-burn="5">
+      <rect x="380" y="300" width="340" height="220" fill="#c0392b" stroke="#3a0a05" stroke-width="4"/>
+      <polygon points="380,300 550,200 720,300" fill="#a83020" stroke="#3a0a05" stroke-width="4"/>
+      <!-- white X door -->
+      <rect x="500" y="380" width="100" height="140" fill="#f4ead2" stroke="#3a0a05" stroke-width="3"/>
+      <line x1="500" y1="380" x2="600" y2="520" stroke="#3a0a05" stroke-width="4"/>
+      <line x1="600" y1="380" x2="500" y2="520" stroke="#3a0a05" stroke-width="4"/>
+      <!-- hayloft window -->
+      <rect x="525" y="240" width="50" height="50" fill="#f4ead2" stroke="#3a0a05" stroke-width="3"/>
+    </g>
+    <!-- haystack -->
+    <g class="burnable" data-burn="2">
+      <ellipse cx="800" cy="490" rx="60" ry="40" fill="#e8b94a" stroke="#7a5a1d" stroke-width="3"/>
+      <path d="M745 490 L855 490 M755 470 L845 470 M765 510 L835 510" stroke="#7a5a1d" stroke-width="2"/>
+    </g>
+    <!-- fence -->
+    <g class="burnable" data-burn="4">
+      <rect x="240" y="470" width="6" height="50" fill="#7a4a1d"/>
+      <rect x="290" y="470" width="6" height="50" fill="#7a4a1d"/>
+      <rect x="340" y="470" width="6" height="50" fill="#7a4a1d"/>
+      <rect x="240" y="480" width="110" height="6" fill="#7a4a1d"/>
+      <rect x="240" y="500" width="110" height="6" fill="#7a4a1d"/>
+    </g>
+    <!-- tractor -->
+    <g class="burnable" data-burn="3">
+      <rect x="880" y="460" width="80" height="40" fill="#2ec27e" stroke="#143d22" stroke-width="3"/>
+      <rect x="900" y="430" width="40" height="40" fill="#2ec27e" stroke="#143d22" stroke-width="3"/>
+      <rect x="908" y="438" width="24" height="20" fill="#9bd3ff"/>
+      <circle cx="895" cy="510" r="18" fill="#222"/>
+      <circle cx="950" cy="510" r="26" fill="#222"/>
+    </g>
+    <!-- cow -->
+    <g class="burnable" data-burn="7">
+      <ellipse cx="450" cy="510" rx="55" ry="25" fill="#fff" stroke="#222" stroke-width="3"/>
+      <ellipse cx="500" cy="505" rx="14" ry="10" fill="#222"/>
+      <ellipse cx="430" cy="515" rx="10" ry="7" fill="#222"/>
+      <circle cx="510" cy="490" r="14" fill="#fff" stroke="#222" stroke-width="3"/>
+      <circle cx="514" cy="488" r="2" fill="#222"/>
+      <rect x="425" y="530" width="6" height="14" fill="#222"/>
+      <rect x="475" y="530" width="6" height="14" fill="#222"/>
+    </g>
+    <!-- chicken -->
+    <g class="burnable" data-burn="8">
+      <ellipse cx="660" cy="525" rx="20" ry="14" fill="#fff" stroke="#444" stroke-width="2"/>
+      <circle cx="676" cy="515" r="9" fill="#fff" stroke="#444" stroke-width="2"/>
+      <polygon points="685,515 695,517 685,520" fill="#ff8c1a"/>
+      <path d="M676 506 Q672 500 678 502 Q684 500 680 506 Z" fill="#e63946"/>
+      <line x1="655" y1="540" x2="655" y2="548" stroke="#ff8c1a" stroke-width="2"/>
+      <line x1="665" y1="540" x2="665" y2="548" stroke="#ff8c1a" stroke-width="2"/>
+    </g>
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
+  `,
+
+  city: () => `
+    <defs>
+      <linearGradient id="citySky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stop-color="#ff7a47"/>
+        <stop offset="60%" stop-color="#ffb066"/>
+        <stop offset="100%" stop-color="#fde0a8"/>
+      </linearGradient>
+    </defs>
+    <rect class="bg" width="1000" height="450" fill="url(#citySky)"/>
+    <!-- sidewalk + road -->
+    <rect y="450" width="1000" height="40"  fill="#bdc3c7"/>
+    <rect y="490" width="1000" height="80"  fill="#3a3f44"/>
+    <rect y="570" width="1000" height="30"  fill="#bdc3c7"/>
+    <!-- road dashes -->
+    <g>
+      <rect x="40"  y="525" width="60" height="8" fill="#ffd86b"/>
+      <rect x="180" y="525" width="60" height="8" fill="#ffd86b"/>
+      <rect x="320" y="525" width="60" height="8" fill="#ffd86b"/>
+      <rect x="460" y="525" width="60" height="8" fill="#ffd86b"/>
+      <rect x="600" y="525" width="60" height="8" fill="#ffd86b"/>
+      <rect x="740" y="525" width="60" height="8" fill="#ffd86b"/>
+      <rect x="880" y="525" width="60" height="8" fill="#ffd86b"/>
+    </g>
+    <!-- sun -->
+    <circle class="burnable" data-burn="9" cx="850" cy="130" r="50" fill="#fff5b0"/>
+    <!-- skyscraper left -->
+    <g class="burnable" data-burn="5">
+      <rect x="60" y="180" width="170" height="270" fill="#5a6470" stroke="#1f2630" stroke-width="3"/>
+      <g fill="#ffd86b">
+        <rect x="80"  y="200" width="20" height="20"/>
+        <rect x="120" y="200" width="20" height="20"/>
+        <rect x="160" y="200" width="20" height="20"/>
+        <rect x="200" y="200" width="20" height="20"/>
+        <rect x="80"  y="240" width="20" height="20"/>
+        <rect x="120" y="240" width="20" height="20"/>
+        <rect x="160" y="240" width="20" height="20"/>
+        <rect x="80"  y="280" width="20" height="20"/>
+        <rect x="160" y="280" width="20" height="20"/>
+        <rect x="200" y="280" width="20" height="20"/>
+        <rect x="80"  y="320" width="20" height="20"/>
+        <rect x="120" y="320" width="20" height="20"/>
+        <rect x="200" y="320" width="20" height="20"/>
+        <rect x="120" y="360" width="20" height="20"/>
+        <rect x="160" y="360" width="20" height="20"/>
+        <rect x="80"  y="400" width="20" height="20"/>
+        <rect x="200" y="400" width="20" height="20"/>
+      </g>
+    </g>
+    <!-- skyscraper center (tallest) -->
+    <g class="burnable" data-burn="6">
+      <rect x="280" y="100" width="200" height="350" fill="#4a90c2" stroke="#143d5a" stroke-width="3"/>
+      <rect x="370" y="60"  width="20"  height="40" fill="#5a6470"/>
+      <g fill="#9bd3ff">
+        <rect x="300" y="120" width="160" height="14"/>
+        <rect x="300" y="150" width="160" height="14"/>
+        <rect x="300" y="180" width="160" height="14"/>
+        <rect x="300" y="210" width="160" height="14"/>
+        <rect x="300" y="240" width="160" height="14"/>
+        <rect x="300" y="270" width="160" height="14"/>
+        <rect x="300" y="300" width="160" height="14"/>
+        <rect x="300" y="330" width="160" height="14"/>
+        <rect x="300" y="360" width="160" height="14"/>
+        <rect x="300" y="390" width="160" height="14"/>
+      </g>
+    </g>
+    <!-- skyscraper right -->
+    <g class="burnable" data-burn="7">
+      <rect x="540" y="220" width="180" height="230" fill="#7a4a1d" stroke="#3a2410" stroke-width="3"/>
+      <g fill="#ffd86b">
+        <rect x="560" y="240" width="22" height="22"/>
+        <rect x="600" y="240" width="22" height="22"/>
+        <rect x="640" y="240" width="22" height="22"/>
+        <rect x="680" y="240" width="22" height="22"/>
+        <rect x="560" y="280" width="22" height="22"/>
+        <rect x="640" y="280" width="22" height="22"/>
+        <rect x="680" y="280" width="22" height="22"/>
+        <rect x="600" y="320" width="22" height="22"/>
+        <rect x="640" y="320" width="22" height="22"/>
+        <rect x="560" y="360" width="22" height="22"/>
+        <rect x="680" y="360" width="22" height="22"/>
+        <rect x="600" y="400" width="22" height="22"/>
+        <rect x="640" y="400" width="22" height="22"/>
+      </g>
+    </g>
+    <!-- billboard -->
+    <g class="burnable" data-burn="4">
+      <rect x="760" y="220" width="200" height="100" fill="#fff" stroke="#222" stroke-width="3"/>
+      <rect x="800" y="320" width="10" height="130" fill="#444"/>
+      <rect x="910" y="320" width="10" height="130" fill="#444"/>
+      <text x="860" y="280" text-anchor="middle" font-size="38" font-weight="bold" fill="#c0392b" font-family="sans-serif">SALE!</text>
+    </g>
+    <!-- streetlamp -->
+    <g class="burnable" data-burn="3">
+      <rect x="245" y="340" width="6" height="110" fill="#222"/>
+      <path d="M248 340 Q280 320 280 305" stroke="#222" stroke-width="6" fill="none"/>
+      <circle cx="280" cy="300" r="10" fill="#fff5b0"/>
+    </g>
+    <!-- car -->
+    <g class="burnable" data-burn="2">
+      <rect x="380" y="510" width="170" height="40" fill="#e63946" stroke="#3a0a05" stroke-width="3"/>
+      <path d="M410 510 L430 480 L520 480 L540 510 Z" fill="#e63946" stroke="#3a0a05" stroke-width="3"/>
+      <rect x="425" y="485" width="40" height="22" fill="#9bd3ff"/>
+      <rect x="475" y="485" width="40" height="22" fill="#9bd3ff"/>
+      <circle cx="415" cy="555" r="16" fill="#222"/>
+      <circle cx="525" cy="555" r="16" fill="#222"/>
+    </g>
+    <!-- traffic light -->
+    <g class="burnable" data-burn="8">
+      <rect x="730" y="380" width="6" height="80" fill="#222"/>
+      <rect x="715" y="340" width="36" height="60" fill="#222" stroke="#000" stroke-width="2"/>
+      <circle cx="733" cy="354" r="6" fill="#e63946"/>
+      <circle cx="733" cy="370" r="6" fill="#ffd86b"/>
+      <circle cx="733" cy="386" r="6" fill="#2ec27e"/>
+    </g>
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
+  `,
+
+  monstertruck: () => `
+    <defs>
+      <linearGradient id="mtSky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stop-color="#3a1a55"/>
+        <stop offset="100%" stop-color="#c0392b"/>
+      </linearGradient>
+    </defs>
+    <rect class="bg" width="1000" height="450" fill="url(#mtSky)"/>
+    <rect y="450" width="1000" height="150" fill="#7a5a1d"/>
+    <rect y="540" width="1000" height="60"  fill="#5b3a1e"/>
+    <!-- sun -->
+    <circle class="burnable" data-burn="9" cx="160" cy="120" r="55" fill="#ffae33"/>
+    <!-- dirt ramp -->
+    <g class="burnable" data-burn="4">
+      <path d="M30 460 L240 460 L160 360 Z" fill="#a06a2e" stroke="#3a2410" stroke-width="3"/>
+    </g>
+    <!-- crushed car 1 -->
+    <g class="burnable" data-burn="2">
+      <path d="M340 470 L360 440 L470 440 L490 470 L490 500 L340 500 Z" fill="#4a90c2" stroke="#143d5a" stroke-width="3" transform="translate(0,15) scale(1,0.55)"/>
+      <rect x="340" y="494" width="150" height="10" fill="#143d5a"/>
+      <circle cx="365" cy="515" r="12" fill="#222"/>
+      <circle cx="465" cy="515" r="12" fill="#222"/>
+    </g>
+    <!-- crushed car 2 -->
+    <g class="burnable" data-burn="3">
+      <path d="M810 470 L830 442 L920 442 L940 470 L940 498 L810 498 Z" fill="#2ec27e" stroke="#143d22" stroke-width="3" transform="translate(0,18) scale(1,0.5)"/>
+      <rect x="810" y="492" width="130" height="10" fill="#143d22"/>
+      <circle cx="830" cy="515" r="12" fill="#222"/>
+      <circle cx="920" cy="515" r="12" fill="#222"/>
+    </g>
+    <!-- monster truck wheels -->
+    <g class="burnable" data-burn="5">
+      <circle cx="490" cy="510" r="60" fill="#1a1a1a" stroke="#000" stroke-width="3"/>
+      <circle cx="490" cy="510" r="22" fill="#bdc3c7" stroke="#000" stroke-width="3"/>
+      <circle cx="710" cy="510" r="60" fill="#1a1a1a" stroke="#000" stroke-width="3"/>
+      <circle cx="710" cy="510" r="22" fill="#bdc3c7" stroke="#000" stroke-width="3"/>
+      <!-- tread marks -->
+      <path d="M450 470 L450 460 M490 450 L490 440 M530 470 L530 460" stroke="#000" stroke-width="3"/>
+      <path d="M670 470 L670 460 M710 450 L710 440 M750 470 L750 460" stroke="#000" stroke-width="3"/>
+    </g>
+    <!-- monster truck body -->
+    <g class="burnable" data-burn="6">
+      <rect x="430" y="370" width="340" height="110" fill="#9b1d1d" stroke="#3a0a05" stroke-width="4"/>
+      <!-- cab -->
+      <path d="M470 370 L500 310 L660 310 L690 370 Z" fill="#7a1010" stroke="#3a0a05" stroke-width="4"/>
+      <rect x="510" y="320" width="60" height="40" fill="#9bd3ff" stroke="#000" stroke-width="2"/>
+      <rect x="590" y="320" width="60" height="40" fill="#9bd3ff" stroke="#000" stroke-width="2"/>
+      <!-- front bumper / grille -->
+      <rect x="430" y="430" width="20" height="50" fill="#bdc3c7" stroke="#000" stroke-width="2"/>
+      <rect x="750" y="430" width="20" height="50" fill="#bdc3c7" stroke="#000" stroke-width="2"/>
+    </g>
+    <!-- flame decals -->
+    <g class="burnable" data-burn="7">
+      <path d="M450 410 Q480 380 510 410 Q540 380 570 410 Q600 380 630 410 Q660 380 690 410 Q720 380 750 410 L750 440 L450 440 Z"
+            fill="#ffae33" stroke="#c0392b" stroke-width="3"/>
+    </g>
+    <!-- dust cloud -->
+    <g class="burnable" data-burn="8">
+      <circle cx="280" cy="500" r="28" fill="#d8c8a3" opacity="0.8"/>
+      <circle cx="320" cy="510" r="24" fill="#d8c8a3" opacity="0.8"/>
+      <circle cx="350" cy="495" r="20" fill="#d8c8a3" opacity="0.8"/>
+    </g>
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
+  `,
+
+  dump: () => `
+    <defs>
+      <linearGradient id="dumpSky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stop-color="#7d8a5a"/>
+        <stop offset="100%" stop-color="#bfb888"/>
+      </linearGradient>
+    </defs>
+    <rect class="bg" width="1000" height="450" fill="url(#dumpSky)"/>
+    <rect y="450" width="1000" height="150" fill="#8a6f3a"/>
+    <rect y="540" width="1000" height="60"  fill="#5b4520"/>
+    <!-- weak sun -->
+    <circle class="burnable" data-burn="9" cx="850" cy="120" r="40" fill="#d4c878"/>
+    <!-- big trash bag pile -->
+    <g class="burnable" data-burn="5">
+      <ellipse cx="500" cy="490" rx="180" ry="80" fill="#2a2a2a" stroke="#000" stroke-width="3"/>
+      <ellipse cx="430" cy="460" rx="55" ry="45" fill="#2a2a2a" stroke="#000" stroke-width="3"/>
+      <ellipse cx="540" cy="445" rx="60" ry="50" fill="#2a2a2a" stroke="#000" stroke-width="3"/>
+      <ellipse cx="610" cy="465" rx="55" ry="45" fill="#2a2a2a" stroke="#000" stroke-width="3"/>
+      <!-- twisty tops -->
+      <path d="M430 415 L425 405 L435 408 L432 400" stroke="#000" stroke-width="3" fill="none"/>
+      <path d="M540 395 L535 385 L545 388 L542 380" stroke="#000" stroke-width="3" fill="none"/>
+      <path d="M610 420 L605 410 L615 413 L612 405" stroke="#000" stroke-width="3" fill="none"/>
+    </g>
+    <!-- dumpster -->
+    <g class="burnable" data-burn="6">
+      <rect x="60" y="380" width="240" height="130" fill="#2ec27e" stroke="#143d22" stroke-width="4"/>
+      <rect x="60" y="380" width="240" height="20" fill="#1f8d5a" stroke="#143d22" stroke-width="3"/>
+      <rect x="80" y="410" width="200" height="6" fill="#143d22"/>
+      <rect x="80" y="440" width="200" height="6" fill="#143d22"/>
+      <rect x="80" y="470" width="200" height="6" fill="#143d22"/>
+      <circle cx="100" cy="515" r="12" fill="#222"/>
+      <circle cx="260" cy="515" r="12" fill="#222"/>
+      <!-- overflowing trash -->
+      <ellipse cx="120" cy="375" rx="22" ry="14" fill="#7a4a1d"/>
+      <ellipse cx="180" cy="370" rx="28" ry="16" fill="#3a3a3a"/>
+      <ellipse cx="240" cy="376" rx="20" ry="12" fill="#c0392b"/>
+    </g>
+    <!-- old TV -->
+    <g class="burnable" data-burn="4">
+      <rect x="720" y="430" width="120" height="90" fill="#3a3f44" stroke="#000" stroke-width="3"/>
+      <rect x="734" y="444" width="92" height="62" fill="#5a6470"/>
+      <line x1="734" y1="444" x2="826" y2="506" stroke="#9aa7b3" stroke-width="3"/>
+      <line x1="826" y1="444" x2="734" y2="506" stroke="#9aa7b3" stroke-width="3"/>
+      <rect x="845" y="450" width="6" height="6" fill="#222"/>
+      <rect x="845" y="470" width="6" height="6" fill="#222"/>
+      <line x1="745" y1="430" x2="730" y2="405" stroke="#222" stroke-width="3"/>
+      <line x1="815" y1="430" x2="830" y2="405" stroke="#222" stroke-width="3"/>
+    </g>
+    <!-- broken chair -->
+    <g class="burnable" data-burn="3">
+      <rect x="350" y="470" width="60" height="14" fill="#7a4a1d" stroke="#3a2410" stroke-width="2"/>
+      <rect x="350" y="420" width="14" height="50" fill="#7a4a1d" stroke="#3a2410" stroke-width="2"/>
+      <rect x="354" y="484" width="6" height="36" fill="#7a4a1d" transform="rotate(15 357 502)"/>
+      <rect x="400" y="484" width="6" height="20" fill="#7a4a1d" transform="rotate(-30 403 494)"/>
+    </g>
+    <!-- tire -->
+    <g class="burnable" data-burn="2">
+      <circle cx="900" cy="520" r="34" fill="#1a1a1a" stroke="#000" stroke-width="3"/>
+      <circle cx="900" cy="520" r="14" fill="#5a5a5a" stroke="#000" stroke-width="2"/>
+    </g>
+    <!-- banana peel -->
+    <g class="burnable" data-burn="7">
+      <path d="M250 530 Q260 510 280 515 Q300 520 305 540 Q285 545 270 540 Q255 545 250 530 Z" fill="#ffd86b" stroke="#7a5a1d" stroke-width="2"/>
+    </g>
+    <!-- flies -->
+    <g class="burnable" data-burn="8">
+      <text x="500" y="380" font-size="22" fill="#222">~~ 🪰 ~~</text>
+      <text x="200" y="350" font-size="18" fill="#222">🪰</text>
+      <text x="780" y="380" font-size="20" fill="#222">🪰</text>
+    </g>
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
+  `,
+
+  campsite: () => `
+    <defs>
+      <linearGradient id="campSky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stop-color="#142850"/>
+        <stop offset="60%" stop-color="#3a1a55"/>
+        <stop offset="100%" stop-color="#c25b4a"/>
+      </linearGradient>
+    </defs>
+    <rect class="bg" width="1000" height="450" fill="url(#campSky)"/>
+    <rect y="450" width="1000" height="150" fill="#3a5d2a"/>
+    <rect y="540" width="1000" height="60"  fill="#234119"/>
+    <!-- moon + stars -->
+    <g class="burnable" data-burn="9">
+      <circle cx="180" cy="120" r="42" fill="#fff5b0"/>
+      <circle cx="195" cy="110" r="36" fill="#3a1a55"/>
+      <text x="400" y="100" font-size="22" fill="#fff">✦</text>
+      <text x="600" y="80"  font-size="18" fill="#fff">✦</text>
+      <text x="780" y="140" font-size="22" fill="#fff">✦</text>
+      <text x="500" y="180" font-size="18" fill="#fff">✦</text>
+      <text x="850" y="220" font-size="18" fill="#fff">✦</text>
+    </g>
+    <!-- tree left -->
+    <g class="burnable" data-burn="2">
+      <rect x="80" y="380" width="22" height="100" fill="#3a2410"/>
+      <polygon points="91,210 50,320 132,320" fill="#1f4a2a"/>
+      <polygon points="91,260 40,360 142,360" fill="#1f4a2a"/>
+      <polygon points="91,310 30,400 152,400" fill="#1f4a2a"/>
+    </g>
+    <!-- tree right -->
+    <g class="burnable" data-burn="3">
+      <rect x="900" y="380" width="22" height="100" fill="#3a2410"/>
+      <polygon points="911,230 870,330 952,330" fill="#1f4a2a"/>
+      <polygon points="911,280 860,370 962,370" fill="#1f4a2a"/>
+      <polygon points="911,330 850,410 972,410" fill="#1f4a2a"/>
+    </g>
+    <!-- log seat -->
+    <g class="burnable" data-burn="4">
+      <ellipse cx="700" cy="500" rx="80" ry="14" fill="#7a4a1d" stroke="#3a2410" stroke-width="3"/>
+      <ellipse cx="700" cy="495" rx="80" ry="14" fill="#a36b30" stroke="#3a2410" stroke-width="3"/>
+      <ellipse cx="700" cy="495" rx="14" ry="6"  fill="#7a4a1d"/>
+      <line x1="694" y1="494" x2="706" y2="496" stroke="#3a2410" stroke-width="2"/>
+    </g>
+    <!-- campfire logs -->
+    <g class="burnable" data-burn="5">
+      <rect x="430" y="500" width="120" height="14" fill="#7a4a1d" stroke="#3a2410" stroke-width="3" transform="rotate(-15 490 507)"/>
+      <rect x="430" y="514" width="120" height="14" fill="#7a4a1d" stroke="#3a2410" stroke-width="3" transform="rotate(15 490 521)"/>
+      <!-- glowing embers -->
+      <circle cx="490" cy="510" r="6" fill="#ff6b1a"/>
+      <circle cx="475" cy="515" r="4" fill="#ffd86b"/>
+      <circle cx="505" cy="513" r="5" fill="#ffae33"/>
+    </g>
+    <!-- tent -->
+    <g class="burnable" data-burn="6">
+      <polygon points="220,510 350,300 480,510" fill="#e63946" stroke="#3a0a05" stroke-width="4"/>
+      <polygon points="350,300 480,510 460,510 350,330 240,510 220,510" fill="#a3202c" stroke="#3a0a05" stroke-width="4"/>
+      <polygon points="320,510 350,360 380,510" fill="#1a1a1a"/>
+    </g>
+    <!-- lantern -->
+    <g class="burnable" data-burn="7">
+      <rect x="780" y="430" width="6" height="40" fill="#222"/>
+      <rect x="770" y="470" width="26" height="36" fill="#5a6470" stroke="#000" stroke-width="2"/>
+      <rect x="775" y="476" width="16" height="22" fill="#fff5b0"/>
+      <rect x="770" y="466" width="26" height="6"  fill="#3a3f44"/>
+      <path d="M783 430 Q770 410 760 415" stroke="#222" stroke-width="3" fill="none"/>
+    </g>
+    <!-- backpack -->
+    <g class="burnable" data-burn="8">
+      <rect x="600" y="490" width="60" height="50" rx="8" fill="#2ec27e" stroke="#143d22" stroke-width="3"/>
+      <rect x="612" y="500" width="36" height="20" fill="#1f8d5a" stroke="#143d22" stroke-width="2"/>
+      <path d="M605 490 Q605 470 625 470" stroke="#143d22" stroke-width="3" fill="none"/>
+      <path d="M655 490 Q655 470 635 470" stroke="#143d22" stroke-width="3" fill="none"/>
+    </g>
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
+  `,
+
+  forest: () => `
+    <defs>
+      <linearGradient id="forestSky" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%"  stop-color="#a8d8a0"/>
+        <stop offset="100%" stop-color="#dff4d2"/>
+      </linearGradient>
+    </defs>
+    <rect class="bg" width="1000" height="450" fill="url(#forestSky)"/>
+    <rect y="450" width="1000" height="150" fill="#6ba84e"/>
+    <rect y="540" width="1000" height="60"  fill="#3f6b29"/>
+    <!-- sun rays through canopy -->
+    <circle class="burnable" data-burn="9" cx="500" cy="100" r="40" fill="#fff5b0" opacity="0.85"/>
+    <!-- back-row tree -->
+    <g class="burnable" data-burn="5">
+      <rect x="490" y="320" width="26" height="180" fill="#5b3a1e"/>
+      <polygon points="503,150 430,310 576,310" fill="#1f6b3a"/>
+      <polygon points="503,210 410,360 596,360" fill="#2a8050"/>
+      <polygon points="503,270 400,420 606,420" fill="#3da955"/>
+    </g>
+    <!-- tree left tall -->
+    <g class="burnable" data-burn="2">
+      <rect x="100" y="340" width="30" height="160" fill="#5b3a1e"/>
+      <circle cx="115" cy="320" r="60" fill="#3da955"/>
+      <circle cx="80"  cy="350" r="50" fill="#3da955"/>
+      <circle cx="155" cy="355" r="55" fill="#3da955"/>
+    </g>
+    <!-- tree right tall -->
+    <g class="burnable" data-burn="3">
+      <rect x="850" y="340" width="30" height="160" fill="#5b3a1e"/>
+      <circle cx="865" cy="320" r="60" fill="#3da955"/>
+      <circle cx="830" cy="350" r="50" fill="#3da955"/>
+      <circle cx="905" cy="355" r="55" fill="#3da955"/>
+    </g>
+    <!-- pine tree -->
+    <g class="burnable" data-burn="4">
+      <rect x="280" y="380" width="22" height="110" fill="#3a2410"/>
+      <polygon points="291,220 240,330 342,330" fill="#1f6b3a"/>
+      <polygon points="291,270 230,370 352,370" fill="#1f6b3a"/>
+      <polygon points="291,320 220,410 362,410" fill="#1f6b3a"/>
+    </g>
+    <!-- bush -->
+    <g class="burnable" data-burn="6">
+      <ellipse cx="700" cy="510" rx="60" ry="30" fill="#3da955" stroke="#1f6b3a" stroke-width="3"/>
+      <circle cx="680" cy="495" r="22" fill="#3da955"/>
+      <circle cx="720" cy="490" r="26" fill="#3da955"/>
+      <circle cx="740" cy="500" r="20" fill="#3da955"/>
+    </g>
+    <!-- mushrooms -->
+    <g class="burnable" data-burn="7">
+      <ellipse cx="200" cy="520" rx="22" ry="14" fill="#e63946"/>
+      <rect x="194" y="520" width="12" height="22" fill="#fff5d4"/>
+      <circle cx="190" cy="515" r="3" fill="#fff"/>
+      <circle cx="210" cy="513" r="3" fill="#fff"/>
+      <ellipse cx="240" cy="528" rx="14" ry="9" fill="#e63946"/>
+      <rect x="236" y="528" width="8" height="14" fill="#fff5d4"/>
+    </g>
+    <!-- deer -->
+    <g class="burnable" data-burn="8">
+      <ellipse cx="600" cy="510" rx="44" ry="22" fill="#a36b30" stroke="#3a2410" stroke-width="3"/>
+      <rect x="568" y="525" width="6" height="22" fill="#a36b30" stroke="#3a2410" stroke-width="2"/>
+      <rect x="580" y="525" width="6" height="22" fill="#a36b30" stroke="#3a2410" stroke-width="2"/>
+      <rect x="616" y="525" width="6" height="22" fill="#a36b30" stroke="#3a2410" stroke-width="2"/>
+      <rect x="628" y="525" width="6" height="22" fill="#a36b30" stroke="#3a2410" stroke-width="2"/>
+      <ellipse cx="640" cy="490" rx="14" ry="12" fill="#a36b30" stroke="#3a2410" stroke-width="3"/>
+      <path d="M634 478 L630 466 M634 478 L640 470 M646 478 L650 466 M646 478 L640 470" stroke="#3a2410" stroke-width="2" fill="none"/>
+      <circle cx="644" cy="488" r="2" fill="#000"/>
+    </g>
+    <g class="burnable" data-burn="10">
+      <rect y="450" width="1000" height="150" fill="transparent"/>
+    </g>
   `
 };
 
@@ -721,7 +1222,7 @@ document.querySelectorAll('.scene-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     let scene = btn.dataset.scene;
     if (scene === 'random') {
-      const opts = ['house', 'hospital', 'park'];
+      const opts = Object.keys(SCENES);
       scene = opts[Math.floor(Math.random() * opts.length)];
     }
     startGame(scene);
