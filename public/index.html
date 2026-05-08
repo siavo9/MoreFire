@@ -141,27 +141,28 @@
     width: 80px; height: 100px;
     transition: width 0.25s, height 0.25s;
   }
-  .flame {
+  #fire-canvas {
     position: absolute;
-    bottom: 0; left: 50%;
-    width: 70%; height: 90%;
-    background: radial-gradient(ellipse at 50% 100%, #fff8a8 0%, #ffd23f 25%, #ff7e1a 55%, #c0392b 80%, transparent 100%);
-    border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
-    transform: translate3d(-50%, 0, 0);
-    animation: dance 0.5s ease-in-out infinite alternate;
-    filter: drop-shadow(0 0 20px #ff7a00);
-    will-change: transform, opacity;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: block;
+    pointer-events: none;
   }
-  .flame.inner {
-    width: 45%; height: 65%;
-    background: radial-gradient(ellipse at 50% 100%, #ffffff 0%, #fff5b0 30%, #ffae33 70%, transparent 100%);
-    animation-duration: 0.35s;
-    filter: none;
+  #fire-wrap {
+    filter: drop-shadow(0 0 32px rgba(255,100,0,0.85)) drop-shadow(0 0 80px rgba(255,40,0,0.45));
   }
-  @keyframes dance {
-    0%   { transform: translate3d(-50%, 0, 0) scaleY(1)    skewX(-3deg); }
-    50%  { transform: translate3d(-50%, 0, 0) scaleY(1.08) skewX(2deg); }
-    100% { transform: translate3d(-50%, 0, 0) scaleY(0.95) skewX(-2deg); }
+  /* Idle ember drift */
+  .idle-ember {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff8c0 0%, #ffaa00 55%, transparent 100%);
+    animation: ember-drift 2s ease-out forwards;
+  }
+  @keyframes ember-drift {
+    0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.85; }
+    40%  { opacity: 0.7; }
+    100% { transform: translate(calc(-50% + var(--dx,0px)), calc(-50% - var(--rise,100px))) scale(0.2); opacity: 0; }
   }
 
   /* Smoke + sparks layer */
@@ -485,8 +486,7 @@
     <div id="fx"></div>
     <div id="fire-wrap" class="fire-target" title="Click me!">
       <div class="fire" id="fire">
-        <div class="flame outer"></div>
-        <div class="flame inner"></div>
+        <canvas id="fire-canvas"></canvas>
       </div>
     </div>
     <div id="hud">
@@ -1294,9 +1294,15 @@ function startGame(sceneName) {
 
   // Apply initial visuals based on START_FIRE
   applyState();
+
+  // Start canvas particle fire + idle ember drift
+  initFireCanvas();
+  startIdleEmbers();
 }
 
 function resetToMenu() {
+  stopFireCanvas();
+  stopIdleEmbers();
   gameEl.style.display = 'none';
   pyroEl.style.display = 'none';
   heroEl.style.display = 'none';
@@ -1305,6 +1311,162 @@ function resetToMenu() {
   clicks = 0;
   gameEnded = false;
   document.body.style.background = '#0b1020';
+}
+
+/* ---------- CANVAS FIRE PARTICLES ---------- */
+let fireCanvas, fireCtx, fireAnimId;
+let fireParticles = [];
+
+function initFireCanvas() {
+  fireCanvas = document.getElementById('fire-canvas');
+  fireCtx = fireCanvas.getContext('2d');
+  fireParticles = [];
+  syncCanvasSize();
+  if (fireAnimId) cancelAnimationFrame(fireAnimId);
+  animateFire();
+}
+
+function stopFireCanvas() {
+  if (fireAnimId) { cancelAnimationFrame(fireAnimId); fireAnimId = null; }
+  fireParticles = [];
+}
+
+function syncCanvasSize() {
+  const rect = fireEl.getBoundingClientRect();
+  const w = Math.max(rect.width, 60);
+  const h = Math.max(rect.height, 80);
+  if (fireCanvas.width  !== w) fireCanvas.width  = w;
+  if (fireCanvas.height !== h) fireCanvas.height = h;
+}
+
+function makeParticle(w, h, intensity) {
+  const isEmber = Math.random() < (0.04 + intensity * 0.09);
+  const spreadX = isEmber ? 0.8 : (0.38 + intensity * 0.25);
+  const sizeMult = 0.28 + intensity * 0.82;
+  return {
+    x:       w * (0.5 - spreadX/2 + Math.random() * spreadX),
+    y:       h * (0.82 + Math.random() * 0.18),
+    vx:      (Math.random() - 0.5) * (w / 35),
+    vy:      -(h / 35 + Math.random() * h / 16),
+    size:    isEmber ? (1.5 + Math.random() * 3)
+                     : (w / 16 + Math.random() * w / 10) * sizeMult,
+    life:    0,
+    maxLife: isEmber ? (70 + Math.random() * 90) : (18 + Math.random() * 22),
+    wob:     (Math.random() - 0.5) * 0.06,
+    alpha0:  0.30 + intensity * 0.62,
+    isEmber,
+  };
+}
+
+function animateFire() {
+  syncCanvasSize();
+  const w = fireCanvas.width, h = fireCanvas.height;
+  const intensity = clicks / MAX_CLICKS;
+
+  // Spawn: 2/frame (subtle flicker) → 42/frame (inferno)
+  const rate = Math.ceil(2 + Math.pow(intensity, 0.6) * 40);
+  const cap  = Math.floor(60 + intensity * 740);
+  for (let i = 0; i < rate && fireParticles.length < cap; i++) {
+    fireParticles.push(makeParticle(w, h, intensity));
+  }
+
+  fireCtx.clearRect(0, 0, w, h);
+
+  // Base glow scales with intensity
+  fireCtx.globalCompositeOperation = 'source-over';
+  const glowStr = 0.05 + intensity * 0.30;
+  const baseGlow = fireCtx.createRadialGradient(w/2, h*0.85, 0, w/2, h*0.85, w*0.65);
+  baseGlow.addColorStop(0,   `rgba(255,90,0,${glowStr})`);
+  baseGlow.addColorStop(0.6, `rgba(200,30,0,${(glowStr*0.35).toFixed(3)})`);
+  baseGlow.addColorStop(1,   'rgba(0,0,0,0)');
+  fireCtx.fillStyle = baseGlow;
+  fireCtx.fillRect(0, 0, w, h);
+
+  // Particles with additive blending
+  fireCtx.globalCompositeOperation = 'lighter';
+  fireParticles = fireParticles.filter(p => p.life < p.maxLife);
+  for (const p of fireParticles) {
+    p.life++;
+    p.vx += p.wob;
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.vy *= 0.987;
+
+    const t = p.life / p.maxLife;
+    const alpha = t < 0.55 ? p.alpha0 : p.alpha0 * (1 - (t - 0.55) / 0.45);
+
+    if (p.isEmber) {
+      const g = fireCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+      g.addColorStop(0,   `rgba(255,245,180,${alpha})`);
+      g.addColorStop(0.5, `rgba(255,140,20,${alpha*0.5})`);
+      g.addColorStop(1,   'rgba(255,60,0,0)');
+      fireCtx.beginPath();
+      fireCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      fireCtx.fillStyle = g;
+      fireCtx.fill();
+    } else {
+      const yNorm = 1 - p.y / h;
+      let r, gr, b;
+      if (yNorm < 0.2) {
+        r = 200; gr = 30 + yNorm / 0.2 * 70; b = 0;
+      } else if (yNorm < 0.55) {
+        const tt = (yNorm - 0.2) / 0.35;
+        r = 255; gr = 100 + tt * 130; b = 0;
+      } else {
+        const tt = (yNorm - 0.55) / 0.45;
+        r = 255; gr = 230 + tt * 25; b = 40 + tt * 180;
+      }
+      const g = fireCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+      g.addColorStop(0,    `rgba(${r},${gr},${b},${alpha})`);
+      g.addColorStop(0.45, `rgba(${Math.floor(r*0.9)},${Math.floor(gr*0.55)},0,${alpha*0.55})`);
+      g.addColorStop(1,    'rgba(180,0,0,0)');
+      fireCtx.beginPath();
+      fireCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      fireCtx.fillStyle = g;
+      fireCtx.fill();
+    }
+  }
+  fireCtx.globalCompositeOperation = 'source-over';
+  fireAnimId = requestAnimationFrame(animateFire);
+}
+
+/* ---------- IDLE EMBER DRIFT ---------- */
+let idleEmberTimer = null;
+
+function startIdleEmbers() {
+  stopIdleEmbers();
+  scheduleNextEmber();
+}
+
+function stopIdleEmbers() {
+  if (idleEmberTimer) { clearTimeout(idleEmberTimer); idleEmberTimer = null; }
+}
+
+function scheduleNextEmber() {
+  const delay = Math.max(60, 220 - clicks * 9);
+  idleEmberTimer = setTimeout(() => {
+    const count = 1 + Math.floor(clicks / 7);
+    for (let i = 0; i < count; i++) spawnIdleEmber();
+    if (gameEl.style.display !== 'none') scheduleNextEmber();
+  }, delay);
+}
+
+function spawnIdleEmber() {
+  const rect = fireWrap.getBoundingClientRect();
+  if (!rect.width) return;
+  const e = document.createElement('div');
+  e.className = 'idle-ember';
+  const x = rect.left + rect.width  * (0.2 + Math.random() * 0.6);
+  const y = rect.top  + rect.height * (0.05 + Math.random() * 0.35);
+  e.style.left = x + 'px';
+  e.style.top  = y + 'px';
+  const size = 2.5 + Math.random() * 3.5 + clicks * 0.15;
+  e.style.width  = size + 'px';
+  e.style.height = size + 'px';
+  e.style.setProperty('--dx',   ((Math.random() - 0.5) * 70) + 'px');
+  e.style.setProperty('--rise', (80 + Math.random() * 100 + clicks * 4) + 'px');
+  fxEl.appendChild(e);
+  setTimeout(() => e.remove(), 2100);
 }
 
 /* ---------- CLICK / GROW ---------- */
