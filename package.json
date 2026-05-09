@@ -1,7 +1,7 @@
 {
   "name": "morefire",
   "version": "1.0.0",
-  "description": "MoreFire — click the fire, watch it grow, burn the scene.",
+  "description": "MoreFire — tap the fire, build a bonfire, or save the day with the water bucket.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
