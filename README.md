@@ -1,6 +1,6 @@
 # MoreFire 🔥
 
-A simple, playful click-to-burn web game. Pick a scene, click the fire, watch it grow until everything is destroyed in 20 clicks.
+A simple, playful tap game. Pick a scene, tap the fire to grow the biggest bonfire, or tap the water bucket to save the day.
 
 ## Run locally
 
