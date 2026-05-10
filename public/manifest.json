@@ -1,13 +1,13 @@
 {
-  "name": "MoreFire",
-  "short_name": "MoreFire",
-  "description": "A friendly tap game — build a roaring bonfire, or save the day with the water bucket.",
+  "name": "Stop The Fire",
+  "short_name": "StopTheFire",
+  "description": "A hero firefighter game — put out 20 fire spots before the clock hits zero!",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0b1020",
-  "theme_color": "#ff5500",
+  "theme_color": "#1d7fd0",
   "categories": ["games", "casual"],
   "icons": [
     {
