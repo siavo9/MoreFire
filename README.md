@@ -1,6 +1,6 @@
-# MoreFire 🔥
+# Stop The Fire 🚒🔥💧
 
-A simple, playful tap game. Pick a scene, tap the fire to grow the biggest bonfire, or tap the water bucket to save the day.
+A simple, fast-paced firefighter tap game. Pick a scene, then put out all 20 fire spots in 30 seconds before your water runs out!
 
 ## Run locally
 

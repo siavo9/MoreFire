@@ -1,7 +1,7 @@
 {
-  "name": "morefire",
-  "version": "1.0.0",
-  "description": "MoreFire — tap the fire, build a bonfire, or save the day with the water bucket.",
+  "name": "stopthefire",
+  "version": "2.0.0",
+  "description": "Stop The Fire — a hero firefighter game. Put out 20 fire spots in 30 seconds before your water runs out.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

@@ -15,5 +15,5 @@ app.get('/privacy', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`MoreFire running at http://localhost:${PORT}`);
+  console.log(`Stop The Fire running at http://localhost:${PORT}`);
 });
