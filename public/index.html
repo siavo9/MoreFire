@@ -138,68 +138,115 @@
   #fire-spots { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
   .fire-spot {
     position: absolute;
-    width: 60px;
-    height: 80px;
-    transform: translate(-50%, -70%);
-    pointer-events: auto;
-    cursor: pointer;
+    width: 180px;
+    height: 240px;
+    transform: translate(-50%, -75%);
+    pointer-events: none; /* only .flame-base catches clicks */
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-  /* Glow halo behind each fire */
+  /* Massive glow halo behind each fire — raging fire look */
   .fire-spot::before {
     content: '';
     position: absolute;
-    left: 50%; top: 60%;
-    width: 110px; height: 110px;
+    left: 50%; top: 72%;
+    width: 260px; height: 260px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,170,30,0.45) 0%, rgba(255,80,0,0.18) 40%, transparent 75%);
+    background: radial-gradient(circle, rgba(255,170,30,0.55) 0%, rgba(255,80,0,0.25) 40%, transparent 75%);
     pointer-events: none;
     animation: fireGlow 1.4s ease-in-out infinite alternate;
   }
   @keyframes fireGlow {
-    0%   { opacity: 0.55; transform: translate(-50%, -50%) scale(0.95); }
-    100% { opacity: 1;    transform: translate(-50%, -50%) scale(1.18); }
+    0%   { opacity: 0.6; transform: translate(-50%, -50%) scale(0.95); }
+    100% { opacity: 1;   transform: translate(-50%, -50%) scale(1.22); }
   }
-  /* The flame itself */
+  /* The main flame */
   .fire-spot .flame {
     position: absolute;
-    left: 50%; bottom: 4px;
-    width: 70%; height: 92%;
+    left: 50%; bottom: 18px;
+    width: 78%; height: 88%;
     transform-origin: 50% 100%;
     transform: translateX(-50%);
     background: radial-gradient(ellipse at 50% 100%,
-      #fff8a8 0%, #ffd23f 25%, #ff7e1a 55%, #c0392b 80%, transparent 100%);
+      #fff8a8 0%, #ffd23f 22%, #ff7e1a 55%, #c0392b 80%, transparent 100%);
     border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
-    filter: drop-shadow(0 0 10px rgba(255,140,40,0.9));
+    filter: drop-shadow(0 0 14px rgba(255,140,40,0.95));
     animation: flameDance 0.45s ease-in-out infinite alternate;
+    pointer-events: none;
   }
   @keyframes flameDance {
     0%   { transform: translateX(-50%) scaleY(1)    skewX(-6deg); }
-    100% { transform: translateX(-50%) scaleY(1.18) skewX(4deg); }
+    100% { transform: translateX(-50%) scaleY(1.22) skewX(4deg); }
   }
-  /* Secondary inner flame for depth */
-  .fire-spot .flame::after {
+  /* Wide, blurry back flame for that "wall of fire" depth */
+  .fire-spot .flame.back {
+    width: 110%; height: 102%;
+    bottom: 10px;
+    opacity: 0.75;
+    filter: blur(3px) drop-shadow(0 0 22px rgba(255,80,20,0.9));
+    background: radial-gradient(ellipse at 50% 100%,
+      #ffae33 0%, #ff5500 38%, #8b1500 78%, transparent 100%);
+    animation: flameDance 0.7s ease-in-out infinite alternate-reverse;
+  }
+  /* Bright inner flame on the main flame */
+  .fire-spot .flame:not(.back)::after {
     content: '';
     position: absolute;
     left: 50%; bottom: 0;
-    width: 55%; height: 70%;
+    width: 58%; height: 72%;
     transform: translateX(-50%);
     background: radial-gradient(ellipse at 50% 100%,
       #fff8c4 0%, #fff5b0 35%, #ffae33 75%, transparent 100%);
     border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
     animation: flameDance 0.32s ease-in-out infinite alternate-reverse;
   }
+  /* Flickery front tongue of flame */
+  .fire-spot .flame.front {
+    width: 46%; height: 62%;
+    bottom: 22px;
+    background: radial-gradient(ellipse at 50% 100%,
+      #ffffff 0%, #fff5b0 40%, #ffae33 80%, transparent 100%);
+    filter: drop-shadow(0 0 10px rgba(255,220,120,0.95));
+    animation: flameDance 0.28s ease-in-out infinite alternate;
+    opacity: 0.95;
+  }
+  /* The BASE of the fire — the ONLY hit target. Glows hot so player knows where to aim. */
+  .fire-spot .flame-base {
+    position: absolute;
+    left: 50%; bottom: -6px;
+    width: 86px; height: 58px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 50%,
+      #fff8e0 0%, #ffe066 22%, #ff7e1a 58%, rgba(192,57,43,0.55) 88%, transparent 100%);
+    box-shadow: 0 0 34px rgba(255,180,40,0.95), 0 0 64px rgba(255,100,20,0.7);
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 2;
+    animation: baseGlow 0.7s ease-in-out infinite alternate;
+  }
+  @keyframes baseGlow {
+    0%   { transform: translateX(-50%) scale(0.94); filter: brightness(1)    drop-shadow(0 0 10px rgba(255,160,40,0.9)); }
+    100% { transform: translateX(-50%) scale(1.08); filter: brightness(1.18) drop-shadow(0 0 22px rgba(255,220,80,1)); }
+  }
+  .fire-spot .flame-base:active { transform: translateX(-50%) scale(0.85); }
   /* Dying state: shrink + fade */
   .fire-spot.dying { animation: fireDie 0.55s ease-out forwards; pointer-events: none; }
+  .fire-spot.dying .flame-base { pointer-events: none; animation: none; }
   @keyframes fireDie {
-    0%   { opacity: 1; transform: translate(-50%, -70%) scale(1); }
-    60%  { opacity: 0.6; transform: translate(-50%, -70%) scale(0.6); filter: brightness(1.4); }
-    100% { opacity: 0; transform: translate(-50%, -70%) scale(0.2); }
+    0%   { opacity: 1; transform: translate(-50%, -75%) scale(1); }
+    60%  { opacity: 0.6; transform: translate(-50%, -75%) scale(0.6); filter: brightness(1.4); }
+    100% { opacity: 0; transform: translate(-50%, -75%) scale(0.2); }
   }
-  /* Hover/press feedback */
-  .fire-spot:active { transform: translate(-50%, -70%) scale(0.92); }
+  /* Newly regrown fire — quick pop-in */
+  .fire-spot.regrown { animation: fireGrow 0.5s ease-out; }
+  @keyframes fireGrow {
+    0%   { opacity: 0; transform: translate(-50%, -75%) scale(0.2); }
+    60%  { opacity: 1; transform: translate(-50%, -75%) scale(1.15); }
+    100% { opacity: 1; transform: translate(-50%, -75%) scale(1); }
+  }
 
   /* ---------- FIRETRUCK ---------- */
   #firetruck-wrap {
@@ -487,7 +534,18 @@
     text-shadow: 1px 1px 0 #000;
     -webkit-tap-highlight-color: transparent;
   }
-  #mute-btn { margin-top: 4px; }
+  #mute-btn { margin-top: 0; }
+  #start-controls {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    align-items: center; margin-top: 4px;
+  }
+  .mode-btn.on {
+    background: linear-gradient(180deg, #6b1500 0%, #c0392b 100%);
+    border-color: #ff5500;
+    color: #fff;
+    text-shadow: 1px 1px 0 #3a0a05, 0 0 10px #ff7e1a;
+    box-shadow: 0 0 18px rgba(255,80,0,0.55);
+  }
   #privacy-link {
     color: #ffe9c2;
     font-size: 13px;
@@ -547,7 +605,7 @@
   <div id="start">
     <h1>🚒 Stop The Fire 🔥</h1>
     <p>Pick a scene. A blaze breaks out — put out all <b>20 fire spots</b> in <b>30 seconds</b> to be a hero!</p>
-    <p class="hint">💧 Tap each flame to aim the firetruck. Watch your water — every shot counts.</p>
+    <p class="hint">💧 Tap the glowing <b>base</b> of each flame to put it out. Watch your water — every shot counts.</p>
     <div id="scene-picker">
       <button class="scene-btn" data-scene="house">    <span class="emoji">🏠</span> House </button>
       <button class="scene-btn" data-scene="warehouse"><span class="emoji">🏭</span> Old Warehouse </button>
@@ -561,7 +619,10 @@
       <button class="scene-btn" data-scene="random">   <span class="emoji">🎲</span> Random </button>
     </div>
     <div id="best-scores"></div>
-    <button id="mute-btn" class="audio-btn" type="button" aria-pressed="false" title="Toggle sound">🔊</button>
+    <div id="start-controls">
+      <button id="hard-mode-btn" class="audio-btn mode-btn" type="button" aria-pressed="false" title="Toggle hard mode">😈 Hard Mode: OFF</button>
+      <button id="mute-btn" class="audio-btn" type="button" aria-pressed="false" title="Toggle sound">🔊</button>
+    </div>
     <a id="privacy-link" href="/privacy.html">Privacy</a>
   </div>
 
@@ -639,8 +700,8 @@
     <div class="tut-card">
       <div class="tut-emoji">🚒💧🔥</div>
       <h3>How to Play</h3>
-      <p>A fire breaks out across the scene. Tap each <b>flame</b> to aim your firetruck and shoot water at it.</p>
-      <p>Put out all <b>20 fires</b> in <b>30 seconds</b> with your <b>limited water</b> to win!</p>
+      <p>A raging fire breaks out. Tap the <b>glowing base</b> at the bottom of each flame to hit it with water. The flame above the base won't work — aim low!</p>
+      <p>Put out all <b>20 fires</b> with your <b>limited water</b> before time runs out. Try <b>😈 Hard Mode</b> for half the time and a fire that grows back on every miss!</p>
       <p class="tut-tip">Tap anywhere to start.</p>
     </div>
   </div>
@@ -659,9 +720,10 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-const TOTAL_FIRES  = 20;
-const TIME_LIMIT_S = 30;
-const WATER_SHOTS  = 30;
+const TOTAL_FIRES        = 20;
+const TIME_LIMIT_S_NORMAL = 30;
+const TIME_LIMIT_S_HARD   = 15;
+const WATER_SHOTS         = 30;
 
 const startEl       = document.getElementById('start');
 const gameEl        = document.getElementById('game');
@@ -676,6 +738,7 @@ const failedEl      = document.getElementById('failed');
 const tutorialEl    = document.getElementById('tutorial');
 const muteBtn       = document.getElementById('mute-btn');
 const gameMuteBtn   = document.getElementById('game-mute-btn');
+const hardModeBtn   = document.getElementById('hard-mode-btn');
 const bestEl        = document.getElementById('best-scores');
 const heroBestEl    = document.getElementById('hero-best');
 const failedBestEl  = document.getElementById('failed-best');
@@ -695,12 +758,15 @@ let idleEmberTimer = null;
 let currentScene = null;
 let gameEnded = false;
 let pendingShots = 0;    // shots fired but not yet resolved (mid-arc)
+let currentTimeLimitMs = TIME_LIMIT_S_NORMAL * 1000;
+let extinguishedPositions = []; // hard mode: positions of put-out fires to regrow from
 
 /* ---------- LOCAL STORAGE ---------- */
 const LS_MUTE        = 'stopthefire.muted';
 const LS_TUTORIAL    = 'stopthefire.tutorialSeen';
 const LS_BEST_TIME   = 'stopthefire.bestTimeMs';   // fastest win (ms used)
 const LS_BEST_WATER  = 'stopthefire.bestWaterLeft'; // most water left at win
+const LS_HARD        = 'stopthefire.hardMode';
 
 function lsGet(k, fallback = null) {
   try { const v = localStorage.getItem(k); return v === null ? fallback : v; }
@@ -760,24 +826,70 @@ function playCrackle() {
 function playSplash() {
   const ctx = ensureAudio();
   if (!ctx) return;
-  const dur = 0.32;
+  const now = ctx.currentTime;
+
+  // 1) Main splash body — broad noise burst, sweeping lowpass for that "kssh" decay
+  const dur = 0.55;
   const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) {
-    data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    const t = i / data.length;
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 1.4);
   }
   const src = ctx.createBufferSource();
   src.buffer = buf;
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(2400, ctx.currentTime);
-  filter.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + dur);
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 220;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(4200, now);
+  lp.frequency.exponentialRampToValueAtTime(420, now + dur);
+  lp.Q.value = 0.9;
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.32, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-  src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
-  src.start();
-  src.stop(ctx.currentTime + dur);
+  gain.gain.setValueAtTime(0.42, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+  src.connect(hp); hp.connect(lp); lp.connect(gain); gain.connect(ctx.destination);
+  src.start(now);
+  src.stop(now + dur);
+
+  // 2) Bubble pop / impact — quick descending sine "bloop"
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(820, now);
+  osc.frequency.exponentialRampToValueAtTime(180, now + 0.13);
+  const oscGain = ctx.createGain();
+  oscGain.gain.setValueAtTime(0.0001, now);
+  oscGain.gain.exponentialRampToValueAtTime(0.22, now + 0.012);
+  oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+  osc.connect(oscGain); oscGain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.18);
+
+  // 3) Three scattered droplet bursts at random delays — that wet, scattering tail
+  for (let k = 0; k < 3; k++) {
+    const delay = 0.04 + Math.random() * 0.22;
+    const dur2 = 0.10 + Math.random() * 0.12;
+    const buf2 = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur2), ctx.sampleRate);
+    const d2 = buf2.getChannelData(0);
+    for (let i = 0; i < d2.length; i++) {
+      d2[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d2.length, 2);
+    }
+    const s2 = ctx.createBufferSource();
+    s2.buffer = buf2;
+    const f2 = ctx.createBiquadFilter();
+    f2.type = 'bandpass';
+    f2.frequency.value = 1300 + Math.random() * 2000;
+    f2.Q.value = 1.6;
+    const g2 = ctx.createGain();
+    const peak = 0.10 + Math.random() * 0.10;
+    g2.gain.setValueAtTime(0.0001, now + delay);
+    g2.gain.exponentialRampToValueAtTime(peak, now + delay + 0.008);
+    g2.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur2);
+    s2.connect(f2); f2.connect(g2); g2.connect(ctx.destination);
+    s2.start(now + delay);
+    s2.stop(now + delay + dur2);
+  }
 }
 
 function playWinSting(kind) {
@@ -820,13 +932,35 @@ if (muteBtn)     muteBtn.addEventListener('click', toggleMute);
 if (gameMuteBtn) gameMuteBtn.addEventListener('click', toggleMute);
 refreshMuteUI();
 
+/* ---------- HARD MODE TOGGLE ---------- */
+let hardMode = lsGet(LS_HARD) === '1';
+function refreshHardUI() {
+  if (!hardModeBtn) return;
+  hardModeBtn.textContent = hardMode ? '😈 Hard Mode: ON' : '😈 Hard Mode: OFF';
+  hardModeBtn.setAttribute('aria-pressed', hardMode ? 'true' : 'false');
+  hardModeBtn.classList.toggle('on', hardMode);
+}
+function toggleHard(e) {
+  if (e) e.stopPropagation();
+  hardMode = !hardMode;
+  lsSet(LS_HARD, hardMode ? '1' : '0');
+  refreshHardUI();
+  renderBest();
+}
+if (hardModeBtn) hardModeBtn.addEventListener('click', toggleHard);
+refreshHardUI();
+
 /* ---------- BEST SCORES ---------- */
+function bestTimeKey()  { return hardMode ? LS_BEST_TIME  + '.hard' : LS_BEST_TIME; }
+function bestWaterKey() { return hardMode ? LS_BEST_WATER + '.hard' : LS_BEST_WATER; }
+
 function renderBest() {
-  const bestMs = parseInt(lsGet(LS_BEST_TIME, ''), 10);
-  const bestWater = parseInt(lsGet(LS_BEST_WATER, ''), 10);
+  const bestMs = parseInt(lsGet(bestTimeKey(), ''), 10);
+  const bestWater = parseInt(lsGet(bestWaterKey(), ''), 10);
   const parts = [];
-  if (Number.isFinite(bestMs)) parts.push(`<span class="best-pill">⚡ Fastest save: ${(bestMs/1000).toFixed(1)}s</span>`);
-  if (Number.isFinite(bestWater)) parts.push(`<span class="best-pill">💧 Best water saved: ${bestWater}</span>`);
+  const tag = hardMode ? '😈 ' : '';
+  if (Number.isFinite(bestMs))    parts.push(`<span class="best-pill">${tag}⚡ Fastest save: ${(bestMs/1000).toFixed(1)}s</span>`);
+  if (Number.isFinite(bestWater)) parts.push(`<span class="best-pill">${tag}💧 Best water saved: ${bestWater}</span>`);
   bestEl.innerHTML = parts.join('');
 }
 renderBest();
@@ -1285,9 +1419,11 @@ function startGame(sceneName) {
   currentScene = sceneName;
   firesLeft = TOTAL_FIRES;
   waterLeft = WATER_SHOTS;
-  timeLeftMs = TIME_LIMIT_S * 1000;
+  currentTimeLimitMs = (hardMode ? TIME_LIMIT_S_HARD : TIME_LIMIT_S_NORMAL) * 1000;
+  timeLeftMs = currentTimeLimitMs;
   gameEnded = false;
   pendingShots = 0;
+  extinguishedPositions = [];
 
   startEl.style.display = 'none';
   heroEl.style.display = 'none';
@@ -1314,7 +1450,7 @@ function startGame(sceneName) {
     startIdleEmbers();
     // Start timer immediately after fires placed
     timerStart = performance.now();
-    timeLeftMs = TIME_LIMIT_S * 1000;
+    timeLeftMs = currentTimeLimitMs;
     cancelAnimationFrame(timerRaf);
     tickTimer();
     updateHud();
@@ -1378,14 +1514,16 @@ function spawnFireSpots() {
   }
   positions = positions.slice(0, TOTAL_FIRES);
 
-  // Clamp positions to viewport (keep margins so fires aren't clipped or behind truck)
+  // Clamp positions to viewport (keep margins so the larger flames aren't clipped or behind truck)
+  const sideMargin = 60;
+  const topMargin  = 90;
   positions = positions.map(p => ({
-    x: Math.max(38, Math.min(vw - 38, p.x)),
-    y: Math.max(78, Math.min(truckTop - 24, p.y))
+    x: Math.max(sideMargin, Math.min(vw - sideMargin, p.x)),
+    y: Math.max(topMargin,  Math.min(truckTop - 30, p.y))
   }));
 
-  // Spread out any overlapping fires by jittering
-  const minDist = 46;
+  // Spread out so each fire's BASE (the click target) is reachable — flames may visually overlap
+  const minDist = 72;
   for (let i = 0; i < positions.length; i++) {
     for (let j = 0; j < i; j++) {
       const dx = positions[i].x - positions[j].x;
@@ -1393,22 +1531,26 @@ function spawnFireSpots() {
       if (dx*dx + dy*dy < minDist*minDist) {
         positions[i].x += (Math.random() - 0.5) * minDist * 1.4;
         positions[i].y += (Math.random() - 0.5) * minDist * 0.8;
-        positions[i].x = Math.max(38, Math.min(vw - 38, positions[i].x));
-        positions[i].y = Math.max(78, Math.min(truckTop - 24, positions[i].y));
+        positions[i].x = Math.max(sideMargin, Math.min(vw - sideMargin, positions[i].x));
+        positions[i].y = Math.max(topMargin,  Math.min(truckTop - 30, positions[i].y));
       }
     }
   }
 
   for (const pos of positions) {
-    const sp = document.createElement('div');
-    sp.className = 'fire-spot';
-    sp.style.left = pos.x + 'px';
-    sp.style.top  = pos.y + 'px';
-    sp.innerHTML = '<div class="flame"></div>';
-    fireSpotsEl.appendChild(sp);
-    fires.push({ el: sp, x: pos.x, y: pos.y, alive: true });
+    fires.push(createFireSpotAt(pos.x, pos.y));
   }
   firesLeft = fires.length;
+}
+
+function createFireSpotAt(x, y, isRegrown) {
+  const sp = document.createElement('div');
+  sp.className = 'fire-spot' + (isRegrown ? ' regrown' : '');
+  sp.style.left = x + 'px';
+  sp.style.top  = y + 'px';
+  sp.innerHTML = '<div class="flame back"></div><div class="flame"></div><div class="flame front"></div><div class="flame-base"></div>';
+  fireSpotsEl.appendChild(sp);
+  return { el: sp, x, y, alive: true };
 }
 
 function spawnSceneBurst() {
@@ -1423,7 +1565,7 @@ function tickTimer() {
   if (gameEnded) return;
   const now = performance.now();
   const elapsed = now - timerStart;
-  timeLeftMs = Math.max(0, TIME_LIMIT_S * 1000 - elapsed);
+  timeLeftMs = Math.max(0, currentTimeLimitMs - elapsed);
   updateTimerDisplay();
   if (timeLeftMs <= 0) {
     endGameFailed('time');
@@ -1498,6 +1640,7 @@ function shootWaterAt(targetX, targetY, fire) {
       popText(targetX, targetY - 30, '💧');
     } else {
       popText(targetX, targetY - 30, '✗');
+      regrowFire(); // hard mode: a fire grows back on every miss
     }
     pendingShots--;
     // Out of water with fires remaining = loss, but only check once ALL
@@ -1512,6 +1655,7 @@ function shootWaterAt(targetX, targetY, fire) {
 }
 
 function extinguishFireVisual(fire) {
+  if (hardMode) extinguishedPositions.push({ x: fire.x, y: fire.y });
   fire.el.classList.add('dying');
   setTimeout(() => fire.el.remove(), 600);
   firesLeft--;
@@ -1520,6 +1664,17 @@ function extinguishFireVisual(fire) {
   if (firesLeft <= 0 && !gameEnded) {
     setTimeout(endGameWin, 700);
   }
+}
+
+function regrowFire() {
+  if (!hardMode || gameEnded || firesLeft <= 0 || extinguishedPositions.length === 0) return;
+  const idx = Math.floor(Math.random() * extinguishedPositions.length);
+  const pos = extinguishedPositions.splice(idx, 1)[0];
+  fires.push(createFireSpotAt(pos.x, pos.y, true));
+  firesLeft++;
+  updateHud();
+  popText(pos.x, pos.y - 40, '🔥+1');
+  playCrackle();
 }
 
 function truckBump() {
@@ -1660,19 +1815,22 @@ function endGameWin() {
   cancelAnimationFrame(timerRaf);
   stopIdleEmbers();
 
-  const usedMs = TIME_LIMIT_S * 1000 - timeLeftMs;
+  const usedMs = currentTimeLimitMs - timeLeftMs;
   const waterRemaining = waterLeft;
 
-  // Update best scores
-  const prevBestMs = parseInt(lsGet(LS_BEST_TIME, ''), 10);
-  if (!Number.isFinite(prevBestMs) || usedMs < prevBestMs) lsSet(LS_BEST_TIME, String(Math.round(usedMs)));
-  const prevBestWater = parseInt(lsGet(LS_BEST_WATER, ''), 10);
-  if (!Number.isFinite(prevBestWater) || waterRemaining > prevBestWater) lsSet(LS_BEST_WATER, String(waterRemaining));
+  // Update best scores (separate records per mode)
+  const tKey = bestTimeKey();
+  const wKey = bestWaterKey();
+  const prevBestMs = parseInt(lsGet(tKey, ''), 10);
+  if (!Number.isFinite(prevBestMs) || usedMs < prevBestMs) lsSet(tKey, String(Math.round(usedMs)));
+  const prevBestWater = parseInt(lsGet(wKey, ''), 10);
+  if (!Number.isFinite(prevBestWater) || waterRemaining > prevBestWater) lsSet(wKey, String(waterRemaining));
 
   const bestMsNow = Math.min(Number.isFinite(prevBestMs) ? prevBestMs : Infinity, usedMs);
   const bestWaterNow = Math.max(Number.isFinite(prevBestWater) ? prevBestWater : -Infinity, waterRemaining);
+  const modeTag = hardMode ? ' (😈 Hard)' : '';
 
-  heroBestEl.textContent = `⚡ ${(usedMs/1000).toFixed(1)}s • 💧 ${waterRemaining} water left  •  Best: ${(bestMsNow/1000).toFixed(1)}s, 💧 ${bestWaterNow}`;
+  heroBestEl.textContent = `⚡ ${(usedMs/1000).toFixed(1)}s • 💧 ${waterRemaining} water left  •  Best${modeTag}: ${(bestMsNow/1000).toFixed(1)}s, 💧 ${bestWaterNow}`;
   renderBest();
 
   heroEl.style.display = 'flex';
