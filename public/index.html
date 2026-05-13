@@ -23,6 +23,17 @@
     overflow: hidden;
     background: #0b1020;
     color: #fff;
+    /* Snappier touch — kill the 300ms double-tap delay and rubber-band scrolling on iOS */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    overscroll-behavior: none;
+  }
+  /* CSS variables for iPhone notch / home-bar safe areas */
+  :root {
+    --sa-top:    env(safe-area-inset-top, 0px);
+    --sa-bottom: env(safe-area-inset-bottom, 0px);
+    --sa-left:   env(safe-area-inset-left, 0px);
+    --sa-right:  env(safe-area-inset-right, 0px);
   }
   .scene, #app {
     position: relative;
@@ -91,9 +102,12 @@
 
   /* HUD pills */
   #hud {
-    position: absolute; top: 14px; left: 14px; right: 14px;
+    position: absolute;
+    top: calc(10px + var(--sa-top));
+    left: calc(10px + var(--sa-left));
+    right: calc(10px + var(--sa-right));
     display: flex; justify-content: space-between; align-items: flex-start;
-    gap: 8px;
+    gap: 6px;
     pointer-events: none; z-index: 12;
     flex-wrap: wrap;
   }
@@ -102,6 +116,7 @@
     font-size: clamp(14px, 2vw, 18px); font-weight: bold;
     border: 2px solid #ffd28a;
     text-shadow: 1px 1px 0 #000;
+    white-space: nowrap;
   }
   #timer.pill { border-color: #6cd0ff; color: #d8f2ff; min-width: 92px; text-align: center; }
   #fires-counter.pill { border-color: #ffae33; color: #ffe0b3; }
@@ -114,20 +129,27 @@
   #restart-btn {
     pointer-events: auto;
     position: absolute;
-    bottom: 14px; right: 14px;
+    bottom: calc(12px + var(--sa-bottom));
+    right: calc(12px + var(--sa-right));
     cursor: pointer; background: #fff; color: #c0392b;
-    border: none; padding: 8px 14px; border-radius: 999px;
-    font-weight: bold; font-family: inherit; font-size: 14px;
+    border: none; padding: 10px 16px; border-radius: 999px;
+    font-weight: bold; font-family: inherit; font-size: 15px;
+    min-height: 44px; min-width: 44px;
     z-index: 13;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
   }
   #restart-btn:hover { background: #ffe0b3; }
   #game-mute-btn {
     position: absolute;
-    bottom: 14px; left: 14px;
+    bottom: calc(12px + var(--sa-bottom));
+    left: calc(12px + var(--sa-left));
     z-index: 13;
     pointer-events: auto;
-    padding: 6px 12px;
-    font-size: 16px;
+    padding: 10px 14px;
+    font-size: 18px;
+    min-height: 44px; min-width: 44px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
   }
 
   /* Make burnable elements look slightly scorched while on fire (subtle, not destroyed) */
@@ -141,7 +163,10 @@
     width: 180px;
     height: 240px;
     transform: translate(-50%, -75%);
-    pointer-events: none; /* only .flame-base catches clicks */
+    /* Whole spot is a tap target — easier for fingers. JS still proximity-aims
+       on misses, so even taps OUTSIDE this box hit the closest fire. */
+    pointer-events: auto;
+    cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
@@ -211,18 +236,19 @@
     animation: flameDance 0.28s ease-in-out infinite alternate;
     opacity: 0.95;
   }
-  /* The BASE of the fire — the ONLY hit target. Glows hot so player knows where to aim. */
+  /* The BASE of the fire — visual hot-spot. The WHOLE fire-spot is tappable
+     now (and JS proximity-aims to the nearest fire), but this still draws
+     the eye to where the flame meets the ground. */
   .fire-spot .flame-base {
     position: absolute;
     left: 50%; bottom: -6px;
-    width: 86px; height: 58px;
+    width: 110px; height: 72px;
     transform: translateX(-50%);
     border-radius: 50%;
     background: radial-gradient(ellipse at 50% 50%,
       #fff8e0 0%, #ffe066 22%, #ff7e1a 58%, rgba(192,57,43,0.55) 88%, transparent 100%);
     box-shadow: 0 0 34px rgba(255,180,40,0.95), 0 0 64px rgba(255,100,20,0.7);
-    pointer-events: auto;
-    cursor: pointer;
+    pointer-events: none;
     -webkit-tap-highlight-color: transparent;
     z-index: 2;
     animation: baseGlow 0.7s ease-in-out infinite alternate;
@@ -258,9 +284,12 @@
     filter: drop-shadow(0 8px 18px rgba(0,0,0,0.55));
   }
   #firetruck-svg {
-    width: clamp(220px, 36vw, 360px);
+    width: clamp(170px, 42vw, 360px);
     height: auto;
     display: block;
+  }
+  #firetruck-wrap {
+    bottom: calc(8px + var(--sa-bottom));
   }
   #firetruck-wrap.firing #firetruck-svg { animation: truckBump 0.22s ease-out; }
   @keyframes truckBump {
@@ -596,6 +625,64 @@
     margin-bottom: 0;
     opacity: 0.9;
   }
+
+  /* ---------- PHONE-FRIENDLY OVERRIDES ---------- */
+  @media (max-width: 600px), (pointer: coarse) {
+    /* Tighter, denser HUD so the three pills fit a 360px-wide screen */
+    .pill {
+      padding: 6px 10px;
+      font-size: 13px;
+      border-width: 2px;
+    }
+    #timer.pill { min-width: 72px; }
+    #hud { gap: 4px; }
+
+    /* Bigger finger-friendly action buttons */
+    .scene-btn {
+      padding: 22px 12px;
+      font-size: 17px;
+      min-height: 96px;
+      border-width: 3px;
+    }
+    .scene-btn .emoji { font-size: 48px; }
+    #scene-picker {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .audio-btn { padding: 12px 18px; font-size: 18px; min-height: 48px; }
+    #hero button, #failed button {
+      padding: 16px 30px;
+      font-size: 20px;
+      min-height: 52px;
+    }
+
+    /* Start / end screens — let content breathe and not get clipped under notch */
+    #start, #hero, #failed {
+      padding:
+        calc(20px + var(--sa-top))
+        calc(16px + var(--sa-right))
+        calc(20px + var(--sa-bottom))
+        calc(16px + var(--sa-left));
+      gap: 16px;
+    }
+    #start h1 { font-size: clamp(38px, 13vw, 70px); }
+    #hero h2, #failed h2 { font-size: clamp(34px, 11vw, 60px); }
+
+    /* The flame visuals stay big, but flame-base draws an extra-wide hot
+       target so players SEE where to aim. JS proximity does the actual hit. */
+    .fire-spot .flame-base { width: 130px; height: 80px; }
+  }
+
+  /* Landscape on a phone — keep the HUD out of the dynamic-island area
+     and shrink the truck so the play surface stays usable */
+  @media (max-height: 480px) and (orientation: landscape) {
+    #firetruck-svg { width: clamp(140px, 22vw, 240px); }
+    .pill { padding: 5px 10px; font-size: 12px; }
+    #hud {
+      left: calc(60px + var(--sa-left));
+      right: calc(60px + var(--sa-right));
+    }
+  }
 </style>
 </head>
 <body>
@@ -605,7 +692,7 @@
   <div id="start">
     <h1>🚒 Stop The Fire 🔥</h1>
     <p>Pick a scene. A blaze breaks out — put out all <b>20 fire spots</b> in <b>30 seconds</b> to be a hero!</p>
-    <p class="hint">💧 Tap the glowing <b>base</b> of each flame to put it out. Watch your water — every shot counts.</p>
+    <p class="hint">💧 Tap anywhere on the screen to shoot water — taps auto-aim at the nearest flame. Watch your water — every shot counts.</p>
     <div id="scene-picker">
       <button class="scene-btn" data-scene="house">    <span class="emoji">🏠</span> House </button>
       <button class="scene-btn" data-scene="warehouse"><span class="emoji">🏭</span> Old Warehouse </button>
@@ -700,7 +787,7 @@
     <div class="tut-card">
       <div class="tut-emoji">🚒💧🔥</div>
       <h3>How to Play</h3>
-      <p>A raging fire breaks out. Tap the <b>glowing base</b> at the bottom of each flame to hit it with water. The flame above the base won't work — aim low!</p>
+      <p>A raging fire breaks out. <b>Tap anywhere</b> to shoot water — taps auto-aim at the nearest flame. No need to be precise!</p>
       <p>Put out all <b>20 fires</b> with your <b>limited water</b> before time runs out. Try <b>😈 Hard Mode</b> for half the time and a fire that grows back on every miss!</p>
       <p class="tut-tip">Tap anywhere to start.</p>
     </div>
@@ -1589,25 +1676,64 @@ function updateHud() {
   fireOverlayEl.style.opacity = String(t);
 }
 
-/* ---------- CLICK HANDLER ---------- */
-gameEl.addEventListener('click', (e) => {
+/* ---------- TAP / CLICK HANDLER ----------
+   Mobile-friendly: anywhere you tap shoots water. If the tap lands near a
+   live fire (within a generous proximity), we auto-aim at that fire — so
+   you don't need pixel-perfect accuracy with a fingertip. */
+function findClosestFire(x, y, maxDist) {
+  let best = null;
+  let bestD2 = maxDist * maxDist;
+  for (const f of fires) {
+    if (!f.alive) continue;
+    // Visual flame center sits ~60px above the registered base position.
+    const dx = x - f.x;
+    const dy = y - (f.y - 60);
+    const d2 = dx * dx + dy * dy;
+    if (d2 < bestD2) { bestD2 = d2; best = f; }
+  }
+  return best;
+}
+
+function handleTap(e) {
   if (gameEnded) return;
-  // Ignore clicks on HUD / restart / mute / firetruck itself
+  // Ignore taps on HUD / restart / mute buttons (they have their own handlers)
   if (e.target.closest('#hud, #restart-btn, #game-mute-btn')) return;
 
+  // Use the tap coordinates. pointerdown gives us clientX/Y directly.
+  const x = e.clientX;
+  const y = e.clientY;
+  if (x == null || y == null) return;
+
+  // Don't fire when the tap lands on / under the firetruck
+  const truckRect = truckWrapEl.getBoundingClientRect();
+  if (y > truckRect.top - 4) return;
+
+  // First: did the tap hit a fire-spot element directly? (Easiest case.)
   const spot = e.target.closest('.fire-spot');
   if (spot) {
     const fire = fires.find(f => f.el === spot);
     if (fire && fire.alive) {
       shootWaterAt(fire.x, fire.y, fire);
+      e.preventDefault();
       return;
     }
   }
-  // Miss — but only count it as a shot if the click is in the play area (above the truck)
-  const truckRect = truckWrapEl.getBoundingClientRect();
-  if (e.clientY > truckRect.top - 8) return; // clicked on/near truck — ignore
-  shootWaterAt(e.clientX, e.clientY, null);
-});
+
+  // Otherwise: auto-aim — find the nearest live fire within a generous
+  // proximity (scales with screen size so it's forgiving on phones).
+  const tolerance = Math.max(110, Math.min(window.innerWidth, window.innerHeight) * 0.20);
+  const fire = findClosestFire(x, y, tolerance);
+  if (fire) {
+    shootWaterAt(fire.x, fire.y, fire);
+  } else {
+    // No fire nearby — shoot at the tap location (counts as a miss)
+    shootWaterAt(x, y, null);
+  }
+  e.preventDefault();
+}
+
+// pointerdown unifies mouse + touch + pen and skips the 300ms click delay.
+gameEl.addEventListener('pointerdown', handleTap);
 
 function shootWaterAt(targetX, targetY, fire) {
   if (waterLeft <= 0) return;
