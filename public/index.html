@@ -458,6 +458,41 @@
     filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
     animation: heroBob 2.5s ease-in-out infinite;
   }
+  #level-transition-fact {
+    background: rgba(255,255,255,0.85);
+    border: 3px solid #ffd86b;
+    border-radius: 18px;
+    padding: 14px 20px;
+    max-width: 560px;
+    color: #082c5a;
+    font-size: clamp(15px, 2.2vw, 20px);
+    line-height: 1.4;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  #level-transition-fact .fact-label {
+    display: block;
+    font-size: clamp(13px, 1.8vw, 16px);
+    color: #c0392b;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  #proceed-btn {
+    cursor: pointer;
+    padding: 16px 36px;
+    border-radius: 999px;
+    border: 4px solid #fff;
+    background: linear-gradient(180deg, #2ecc71 0%, #16834a 100%);
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: inherit;
+    text-shadow: 1px 1px 0 #0a3d22;
+    box-shadow: 0 0 24px rgba(0,0,0,0.35);
+    transition: transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #proceed-btn:hover { transform: scale(1.06); }
   @keyframes heroBob {
     0%, 100% { transform: translateY(0) rotate(-3deg); }
     50%      { transform: translateY(-14px) rotate(3deg); }
@@ -739,6 +774,11 @@
     <h2 id="level-transition-title">Level Complete!</h2>
     <div class="hero-art">🚒💧✨</div>
     <p id="level-transition-msg">Get ready…</p>
+    <div id="level-transition-fact">
+      <span class="fact-label">🔥 Did you know?</span>
+      <span id="level-transition-fact-text"></span>
+    </div>
+    <button id="proceed-btn" type="button">▶ Next Level</button>
   </div>
 
   <!-- FAIL ENDING (LOSS) -->
@@ -793,6 +833,8 @@ const flashEl        = document.getElementById('flash');
 const transitionEl   = document.getElementById('level-transition');
 const transitionTitleEl = document.getElementById('level-transition-title');
 const transitionMsgEl   = document.getElementById('level-transition-msg');
+const transitionFactEl  = document.getElementById('level-transition-fact-text');
+const proceedBtn        = document.getElementById('proceed-btn');
 const failedEl       = document.getElementById('failed');
 const tutorialEl     = document.getElementById('tutorial');
 const muteBtn        = document.getElementById('mute-btn');
@@ -816,9 +858,45 @@ let timerStart = 0;
 let timerRaf = null;
 let idleEmberTimer = null;
 let currentScene = null;
+let lastScene = null;       // previous level's scene — never repeat back-to-back
+let lastFactIdx = -1;       // previous level's fact — never repeat back-to-back
 let gameEnded = false;
 let pendingShots = 0;    // shots fired but not yet resolved (mid-arc)
 let currentTimeLimitMs = TIME_LIMIT_S * 1000;
+
+/* ---------- FUN FACTS (between-level trivia) ---------- */
+const FIRE_FACTS = [
+  "The Great Fire of London in 1666 destroyed over 13,000 houses but killed only a handful of people.",
+  "A fire engine's siren can reach 120 decibels — about as loud as a rock concert.",
+  "Firefighters' protective gear (called 'bunker gear') can weigh more than 45 pounds.",
+  "Dalmatians became fire department mascots because they got along well with the horses that pulled fire wagons.",
+  "The fire pole was invented in 1878 in Chicago to help firefighters get downstairs faster.",
+  "A fire can double in size every 30 seconds if left unchecked.",
+  "The hottest part of a candle flame can reach about 1,400°C (2,550°F).",
+  "Fire needs three things to burn: heat, fuel, and oxygen — remove any one and it goes out.",
+  "Firefighters use special foam — not just water — to fight oil and gasoline fires.",
+  "The world's largest fire truck, the Falcon 8x8, can spray 5,000 gallons of water per minute.",
+  "Smoke — not flames — is the leading cause of fire deaths.",
+  "Fire hydrants in the U.S. have been around since the early 1800s.",
+  "A wildfire can travel up to 14 mph (23 km/h) — faster than most people can run.",
+  "The first organized fire brigade was formed in ancient Rome around 6 AD by Emperor Augustus.",
+  "Firefighters often nap in shifts at the station — a 24-hour shift is common.",
+  "House fires are most common in winter, when heaters and candles are used more.",
+  "The Stop, Drop, and Roll technique was popularized in the 1970s to help people put out clothing fires.",
+  "Some fire trucks carry over 1,000 feet of hose.",
+  "International Firefighters' Day is celebrated on May 4th every year.",
+  "A firefighter's helmet shape — with the long back brim — keeps hot water and embers off their neck.",
+  "The hottest wildfires can melt aluminum, which has a melting point of 660°C (1,220°F).",
+  "Most fire stations in the U.S. still use brass poles — they don't rust and are easy to slide down.",
+  "Firefighters can drink up to a gallon of water during a single major fire response.",
+  "The Maltese Cross, worn by many firefighters, is a symbol of protection and a badge of honor over 800 years old.",
+  "A fire alarm in your home can cut your risk of dying in a fire nearly in half.",
+  "Early fire departments were volunteer-only — paid firefighters didn't become common until the mid-1800s.",
+  "Wildfires actually help some forests by clearing dead brush and helping certain seeds (like lodgepole pine) sprout.",
+  "Firefighters train to enter burning buildings while crawling — the air is cooler and clearer near the floor.",
+  "The world record for the fastest fire truck is held by the 'Hawaiian Eagle,' which hit 407 mph.",
+  "Fire departments respond to far more medical calls than actual fires — usually 70% or more of their work."
+];
 
 /* ---------- LOCAL STORAGE ---------- */
 const LS_MUTE        = 'stopthefire.muted';
@@ -1442,8 +1520,20 @@ failedShareBtn.addEventListener('click', shareResults);
 
 /* ---------- GAME FLOW ---------- */
 function pickRandomScene() {
-  const opts = Object.keys(SCENES);
+  const all = Object.keys(SCENES);
+  const opts = all.length > 1 && lastScene
+    ? all.filter(s => s !== lastScene)
+    : all;
   return opts[Math.floor(Math.random() * opts.length)];
+}
+
+function pickRandomFact() {
+  if (FIRE_FACTS.length <= 1) return 0;
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * FIRE_FACTS.length);
+  } while (idx === lastFactIdx);
+  return idx;
 }
 
 function startRun() {
@@ -1454,6 +1544,7 @@ function startRun() {
 function startLevel(level) {
   currentLevel = level;
   currentScene = pickRandomScene();
+  lastScene = currentScene;
   totalFiresThisLevel = firesForLevel(level);
   firesLeft = totalFiresThisLevel;
   currentTimeLimitMs = TIME_LIMIT_S * 1000;
@@ -1886,16 +1977,24 @@ function onLevelComplete() {
   transitionTitleEl.textContent = `Level ${currentLevel} Complete!`;
   transitionMsgEl.textContent = `Next up: Level ${nextLevel} — ${nextFires} fires in 30 seconds!`;
 
+  const factIdx = pickRandomFact();
+  lastFactIdx = factIdx;
+  transitionFactEl.textContent = FIRE_FACTS[factIdx];
+
+  proceedBtn.textContent = `▶ Start Level ${nextLevel}`;
+  proceedBtn.dataset.nextLevel = String(nextLevel);
+
   // Hide game elements behind the transition
   gameEl.style.display = 'none';
   transitionEl.style.display = 'flex';
-
-  setTimeout(() => {
-    if (transitionEl.style.display !== 'none') {
-      startLevel(nextLevel);
-    }
-  }, 1600);
 }
+
+proceedBtn.addEventListener('click', () => {
+  const nextLevel = parseInt(proceedBtn.dataset.nextLevel || '', 10);
+  if (Number.isFinite(nextLevel) && nextLevel > 0) {
+    startLevel(nextLevel);
+  }
+});
 
 /* ---------- END SCREEN (FAIL) ---------- */
 function endGameFailed() {
