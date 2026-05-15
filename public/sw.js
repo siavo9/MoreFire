@@ -1,6 +1,6 @@
 /* Stop The Fire service worker — cache-first for the small static asset set
    so the game is fully playable offline once it has been visited. */
-const CACHE = 'stopthefire-v1';
+const CACHE = 'stopthefire-v2';
 const ASSETS = [
   '/',
   '/index.html',

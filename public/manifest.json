@@ -1,7 +1,7 @@
 {
-  "name": "Stop The Fire",
+  "name": "Stop The Fire!",
   "short_name": "StopTheFire",
-  "description": "A hero firefighter game — put out 20 fire spots before the clock hits zero!",
+  "description": "A hero firefighter game — tap to put out fires before time runs out and climb the levels!",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
