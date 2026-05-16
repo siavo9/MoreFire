@@ -611,6 +611,26 @@
     margin-top: 4px;
   }
   #privacy-link:hover { opacity: 1; }
+  #more-games-link {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 3px solid #6cd0ff;
+    background: rgba(0, 60, 120, 0.55);
+    color: #d8f2ff;
+    font-size: clamp(14px, 2vw, 18px);
+    font-weight: bold;
+    text-decoration: none;
+    text-shadow: 1px 1px 0 #001a33;
+    box-shadow: 0 4px 14px rgba(40, 160, 255, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #more-games-link:hover, #more-games-link:active {
+    transform: scale(1.05);
+    box-shadow: 0 6px 22px rgba(80, 200, 255, 0.6);
+  }
 
   /* ---------- TUTORIAL OVERLAY ---------- */
   #tutorial {
@@ -715,6 +735,7 @@
     <div id="start-controls">
       <button id="mute-btn" class="audio-btn" type="button" aria-pressed="false" title="Toggle sound">🔊</button>
     </div>
+    <a id="more-games-link" href="https://zaksbraingames.com/" target="_blank" rel="noopener">🧠 Try more brain games</a>
     <a id="privacy-link" href="/privacy.html">Privacy</a>
   </div>
 
